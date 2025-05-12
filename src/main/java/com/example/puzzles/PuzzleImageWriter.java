@@ -14,7 +14,7 @@ import com.example.puzzles.model.Word;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PuzzleImage {
+public class PuzzleImageWriter {
 
     private Puzzle puzzle;
 
@@ -22,9 +22,9 @@ public class PuzzleImage {
     private int cellSize;
     private int imageSize;
 
-    private static final Logger logger = LogManager.getLogger(PuzzleImage.class);
+    private static final Logger logger = LogManager.getLogger(PuzzleImageWriter.class);
 
-    public PuzzleImage( Puzzle puzzle ){
+    public PuzzleImageWriter( Puzzle puzzle ){
         this.puzzle = puzzle;
 
         gridSize = Math.max(

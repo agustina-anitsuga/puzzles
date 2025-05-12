@@ -78,7 +78,7 @@ public class WordReader {
         for (Word word : words) {
             int index = word.indexOf(a);
             if (index == -1) {
-                continue; // Skip if the first word is not found
+                continue; 
             } else {
                 int newIndex = index + distance;
                 if( word.charAt(newIndex)==b){
@@ -88,7 +88,7 @@ public class WordReader {
         }
 
         if (matchingWords.isEmpty()) {
-            return null; // Return null if no word contains the character
+            return null; // Return null if no word contains the characters
         }
 
         Random random = new Random();

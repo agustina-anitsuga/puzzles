@@ -11,13 +11,13 @@ import org.apache.logging.log4j.Logger;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 
-public class PuzzleFileGenerator {
+public class PuzzleFileWriter {
 
-    private static final Logger logger = LogManager.getLogger(PuzzleFileGenerator.class);
+    private static final Logger logger = LogManager.getLogger(PuzzleFileWriter.class);
 
     private Puzzle puzzle;
 
-    public PuzzleFileGenerator( Puzzle puzzle ) {
+    public PuzzleFileWriter( Puzzle puzzle ) {
         this.puzzle = puzzle;
     }
 
