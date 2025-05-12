@@ -20,7 +20,8 @@ public class PuzzleImageWriter {
 
     private int gridSize;
     private int cellSize;
-    private int imageSize;
+    private int imageWidth;
+    private int imageHeight;
 
     private static final Logger logger = LogManager.getLogger(PuzzleImageWriter.class);
 
@@ -30,7 +31,25 @@ public class PuzzleImageWriter {
         gridSize = Math.max(
                 puzzle.getPhraseLength(), puzzle.getWords().size()) + 1;
         cellSize = 50;
-        imageSize = gridSize * cellSize;
+        imageWidth = getWidth(puzzle) * cellSize;
+        imageHeight = (gridSize) * cellSize;
+    }
+
+    private int getWidth(Puzzle aPuzzle) {
+        int maxToLeft = 0;
+        int maxToRight = 0;
+        int wordNum = 0;
+        for (Word word : aPuzzle.getWords()) {
+            char phraseChar = aPuzzle.getPhrase().getCharactersInPhrase().charAt(wordNum);
+            int index = word.getWord().indexOf(phraseChar);
+            if( index > maxToLeft ){
+                maxToLeft = index;
+            }
+            if( word.getWord().length() - index > maxToRight ){
+                maxToRight = word.getWord().length() - index;
+            }
+        }
+        return maxToLeft + maxToRight + 1;
     }
 
     private void drawSquare(Graphics2D g2d, int x, int y, int cellSize, boolean isIntersecting) {
@@ -101,11 +120,11 @@ public class PuzzleImageWriter {
             return;
         }
 
-        BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = image.createGraphics();
 
         g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, imageSize, imageSize);
+        g2d.fillRect(0, 0, imageWidth, imageHeight);
 
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));

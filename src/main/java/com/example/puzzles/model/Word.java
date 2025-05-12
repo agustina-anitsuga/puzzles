@@ -23,7 +23,7 @@ public class Word {
     }
 
     public String getWord() {
-        return word;
+        return word.toLowerCase();
     }
 
     public String getDefinition() {

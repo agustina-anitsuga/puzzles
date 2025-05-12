@@ -37,6 +37,8 @@ public class PuzzleFileWriter {
             sb.append(i++).append(". ").append(word.getDefinition()).append("\n");
         }
         sb.append("\n");
+        sb.append("Letters:\n\n");
+        sb.append(getSortedLetters());
 
         writeToFile(sb.toString(), outputDir, fileName);
     }
@@ -55,5 +57,14 @@ public class PuzzleFileWriter {
         sb.append("\n");
 
         writeToFile(sb.toString(), outputDir, fileName);
+    }
+
+    public String getSortedLetters() {
+        StringBuilder sb = new StringBuilder();
+        puzzle.getWords().stream()
+            .flatMap(word -> word.getWord().chars().mapToObj(c -> (char) c))
+            .sorted()
+            .forEach(c -> sb.append(c).append(" "));
+        return sb.toString().trim();
     }
 }

@@ -42,13 +42,13 @@ public class PuzzleGenerator {
 
         Puzzle puzzle = buildPuzzle(phrase);
 
-        PuzzleFileWriter puzzleFileGenerator = new PuzzleFileWriter(puzzle);
-        puzzleFileGenerator.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
-        puzzleFileGenerator.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
+        PuzzleFileWriter puzzleFileWriter = new PuzzleFileWriter(puzzle);
+        puzzleFileWriter.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
+        puzzleFileWriter.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
 
-        PuzzleImageWriter puzzleImage = new PuzzleImageWriter(puzzle);
-        puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
-        puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
+        PuzzleImageWriter puzzleImageWriter = new PuzzleImageWriter(puzzle);
+        puzzleImageWriter.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
+        puzzleImageWriter.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
     }
 
     private Puzzle buildPuzzle(Phrase phrase) {
