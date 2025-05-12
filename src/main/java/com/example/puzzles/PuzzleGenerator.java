@@ -42,11 +42,11 @@ public class PuzzleGenerator {
 
         Puzzle puzzle = buildPuzzle(phrase);
 
-        PuzzleFileGenerator puzzleFileGenerator = new PuzzleFileGenerator(puzzle);
+        PuzzleFileWriter puzzleFileGenerator = new PuzzleFileWriter(puzzle);
         puzzleFileGenerator.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
         puzzleFileGenerator.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
 
-        PuzzleImage puzzleImage = new PuzzleImage(puzzle);
+        PuzzleImageWriter puzzleImage = new PuzzleImageWriter(puzzle);
         puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
         puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
     }
