@@ -5,6 +5,7 @@ import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class PuzzleGeneratorTest {
         words.add(new Word(3, "cherry", "Yet another fruit"));
 
         Puzzle puzzle = new Puzzle(
+            LocalDateTime.now(),
             new Phrase(1,"abc","book","author"), 
             words);
 

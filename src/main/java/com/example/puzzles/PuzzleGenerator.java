@@ -6,6 +6,10 @@ import com.example.puzzles.model.Puzzle;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Properties;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +28,7 @@ public class PuzzleGenerator {
     public void generate() {
 
         PhraseReader phraseReader = new PhraseReader();
-        Phrase phrase = phraseReader.getRandomPhrase("phrases/Iconic_Book_Quotes.xlsx");
+        Phrase phrase = phraseReader.getRandomPhrase(getProperty("phrases.file.path"));
 
         if (phrase != null) {
 
@@ -34,11 +38,16 @@ public class PuzzleGenerator {
 
             List<Word> selectedWords = getSelectedWords(phrase);
 
-            Puzzle puzzle = new Puzzle(phrase, selectedWords);
+            Puzzle puzzle = new Puzzle(LocalDateTime.now(),phrase, selectedWords);
             logger.info(puzzle.toString());
 
+            PuzzleFileGenerator puzzleFileGenerator = new PuzzleFileGenerator(puzzle);
+            puzzleFileGenerator.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
+            puzzleFileGenerator.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
+
             PuzzleImage puzzleImage = new PuzzleImage(puzzle);
-            puzzleImage.generate("src/main/resources/images", "puzzle.png");
+            puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
+            puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
 
         } else {
             logger.warn("No phrases found.");
@@ -46,7 +55,7 @@ public class PuzzleGenerator {
     }
 
     private List<Word> getSelectedWords(Phrase phrase) {
-        WordReader wordReader = new WordReader("src/main/resources/words/Word_List.xlsx");
+        WordReader wordReader = new WordReader(getProperty("word.list.file.path"));
 
         List<Word> selectedWords = new ArrayList<>();
         for (char c : phrase.getCharactersInPhrase().toCharArray()) {
@@ -59,6 +68,20 @@ public class PuzzleGenerator {
             }
         }
         return selectedWords;
+    }
+
+    private String getProperty(String key) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+            Properties properties = new Properties();
+            if (input == null) {
+                throw new IOException("Unable to find config.properties");
+            }
+            properties.load(input);
+            return properties.getProperty(key);
+        } catch (IOException e) {
+            logger.error("Error reading property: " + key, e);
+            return null;
+        }
     }
 
 }

@@ -33,29 +33,41 @@ public class PuzzleImage {
         imageSize = gridSize * cellSize;
     }
 
-    private void drawPhrase(Graphics2D g2d, String phrase, int centerColumn, int cellSize) {
+    private void drawSquare(Graphics2D g2d, int x, int y, int cellSize, boolean isIntersecting) {
+        if (isIntersecting) {
+            g2d.setColor(new Color(240, 240, 240)); // Grey background for intersection
+        } else {
+            g2d.setColor(Color.WHITE); // White background for non-intersecting letters
+        }
+        g2d.fillRect(x, y, cellSize, cellSize);
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.drawRect(x, y, cellSize, cellSize);
+    }
+
+    private void drawLetter(Graphics2D g2d, char letter, int x, int y, int cellSize) {
+        g2d.setColor(Color.BLACK);
+        FontMetrics metrics = g2d.getFontMetrics();
+        int textX = x + (cellSize - metrics.stringWidth(String.valueOf(letter))) / 2;
+        int textY = y + ((cellSize - metrics.getHeight()) / 2) + metrics.getAscent();
+        g2d.drawString(String.valueOf(letter), textX, textY);
+    }
+
+    private void drawPhrase(Graphics2D g2d, String phrase, int centerColumn, int cellSize, boolean isSolution) {
         for (int i = 0; i < phrase.length(); i++) {
             char currentChar = phrase.charAt(i);
             int x = centerColumn * cellSize;
             int y = i * cellSize;
-            g2d.setColor(new Color(240, 240, 240)); // Very light grey background
-            g2d.fillRect(x, y, cellSize, cellSize);
-            g2d.setColor(Color.LIGHT_GRAY);
-            g2d.drawRect(x, y, cellSize, cellSize);
-            g2d.setColor(Color.BLACK);
-            FontMetrics metrics = g2d.getFontMetrics();
-            int textX = x + (cellSize - metrics.stringWidth(String.valueOf(currentChar))) / 2;
-            int textY = y + ((cellSize - metrics.getHeight()) / 2) + metrics.getAscent();
-            g2d.drawString(String.valueOf(currentChar), textX, textY);
+            drawSquare(g2d, x, y, cellSize, true);
+            if(isSolution)
+                drawLetter(g2d, currentChar, x, y, cellSize);
         }
     }
 
-    private void drawWords(Graphics2D g2d, String phrase, List<Word> words, int centerColumn, int cellSize) {
-
+    private void drawWords(Graphics2D g2d, String phrase, List<Word> words, int centerColumn, int cellSize, boolean isSolution) {
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i).getWord().toLowerCase();
 
-            int index = word.indexOf(phrase.charAt(i)) ;    
+            int index = word.indexOf(phrase.charAt(i));
             if (index == -1) {
                 logger.error("Word does not contain the character from the phrase: " + word);
                 continue;
@@ -63,30 +75,18 @@ public class PuzzleImage {
 
             for (int j = 0; j < word.length(); j++) {
                 char wordChar = word.charAt(j);
-                int x = (j-index+centerColumn) * cellSize;
+                int x = (j - index + centerColumn) * cellSize;
                 int y = i * cellSize;
 
-                // Check if the phrase intersects with the current word
-                if ( j == index ) {
-                    g2d.setColor(new Color(240, 240, 240)); // Grey background for intersection
-                    g2d.fillRect(x, y, cellSize, cellSize);
-                } else {
-                    g2d.setColor(Color.WHITE); // White background for non-intersecting letters
-                    g2d.fillRect(x, y, cellSize, cellSize);
-                }
-
-                g2d.setColor(Color.LIGHT_GRAY);
-                g2d.drawRect(x, y, cellSize, cellSize);
-                g2d.setColor(Color.BLACK);
-                FontMetrics metrics = g2d.getFontMetrics();
-                int textX = x + (cellSize - metrics.stringWidth(String.valueOf(wordChar))) / 2;
-                int textY = y + ((cellSize - metrics.getHeight()) / 2) + metrics.getAscent();
-                g2d.drawString(String.valueOf(wordChar), textX, textY);
+                boolean isIntersecting = (j == index);
+                drawSquare(g2d, x, y, cellSize, isIntersecting);
+                if(isSolution)
+                    drawLetter(g2d, wordChar, x, y, cellSize);
             }
         }
     }
 
-    public void generate(String path, String fileName) {
+    public void generate(String path, String fileName, boolean isSolution) {
         String phrase = this.puzzle.getPhrase().getCharactersInPhrase();
         List<Word> words = this.puzzle.getWords();
 
@@ -105,8 +105,8 @@ public class PuzzleImage {
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
 
         int centerColumn = gridSize / 2;
-        drawPhrase(g2d, phrase, centerColumn, cellSize);
-        drawWords(g2d, phrase, words, centerColumn, cellSize);
+        drawPhrase(g2d, phrase, centerColumn, cellSize, isSolution);
+        drawWords(g2d, phrase, words, centerColumn, cellSize, isSolution);
 
         g2d.dispose();
 

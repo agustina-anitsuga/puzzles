@@ -1,15 +1,19 @@
 package com.example.puzzles.model;
 
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Puzzle {
     
+    private LocalDateTime generation;
     private Phrase phrase;
     private List<Word> words;
 
-    public Puzzle(Phrase phrase, List<Word> words) {
+    public Puzzle(LocalDateTime generation, Phrase phrase, List<Word> words) {
         this.phrase = phrase;
         this.words = words;
+        this.generation = generation;
     }
 
     public Phrase getPhrase() {
@@ -22,6 +26,11 @@ public class Puzzle {
 
     public List<Word> getWords() {
         return words;
+    }
+
+    public String getName() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        return "acrostic-puzzle-" + generation.format(formatter);
     }
 
     @Override
