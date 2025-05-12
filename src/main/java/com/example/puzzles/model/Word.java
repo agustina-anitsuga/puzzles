@@ -42,4 +42,8 @@ public class Word {
     public int indexOf(char character) {
         return word.toLowerCase().indexOf(character);
     }
+
+    public char charAt(int index) {
+        return word.toLowerCase().charAt(index);
+    }
 }

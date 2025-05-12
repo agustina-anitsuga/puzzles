@@ -34,6 +34,10 @@ public class Phrase {
         return author;
     }
 
+    public boolean isLong() {
+        return phrase.length() > 30;
+    }
+
     @Override
     public String toString() {
         return "Phrase{" +

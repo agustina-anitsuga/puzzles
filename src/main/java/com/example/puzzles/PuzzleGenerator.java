@@ -38,7 +38,7 @@ public class PuzzleGenerator {
 
             List<Word> selectedWords = getSelectedWords(phrase);
 
-            Puzzle puzzle = new Puzzle(LocalDateTime.now(),phrase, selectedWords);
+            Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, selectedWords);
             logger.info(puzzle.toString());
 
             PuzzleFileGenerator puzzleFileGenerator = new PuzzleFileGenerator(puzzle);
@@ -48,7 +48,7 @@ public class PuzzleGenerator {
             PuzzleImage puzzleImage = new PuzzleImage(puzzle);
             puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
             puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
-
+            
         } else {
             logger.warn("No phrases found.");
         }

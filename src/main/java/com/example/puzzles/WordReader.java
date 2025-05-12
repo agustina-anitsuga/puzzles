@@ -71,4 +71,27 @@ public class WordReader {
         Random random = new Random();
         return matchingWords.get(random.nextInt(matchingWords.size()));
     }
+
+    public Word getWordWith(char a, char b, int distance) {
+        List<Word> matchingWords = new ArrayList<>();
+        
+        for (Word word : words) {
+            int index = word.indexOf(a);
+            if (index == -1) {
+                continue; // Skip if the first word is not found
+            } else {
+                int newIndex = index + distance;
+                if( word.charAt(newIndex)==b){
+                    matchingWords.add(word);
+                }
+            }
+        }
+
+        if (matchingWords.isEmpty()) {
+            return null; // Return null if no word contains the character
+        }
+
+        Random random = new Random();
+        return matchingWords.get(random.nextInt(matchingWords.size()));
+    }
 }
