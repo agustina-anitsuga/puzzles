@@ -4,64 +4,61 @@ import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.model.Puzzle;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class PuzzleGenerator {
-    
+
+    private static final Logger logger = LogManager.getLogger(PuzzleGenerator.class);
+
     public static void main(String[] args) {
-        System.out.println("Welcome to the Puzzle Generator!");
+        logger.info("Welcome to the Puzzle Generator!");
         PuzzleGenerator generator = new PuzzleGenerator();
         generator.generate();
-        System.out.println("Puzzle generation completed.");
+        logger.info("Puzzle generation completed.");
     }
 
     public void generate() {
-    
+
         PhraseReader phraseReader = new PhraseReader();
         Phrase phrase = phraseReader.getRandomPhrase("phrases/Iconic_Book_Quotes.xlsx");
-        
+
         if (phrase != null) {
 
-            System.out.println("Random Phrase: " + phrase.getPhrase());
-            System.out.println("Book: " + phrase.getBook());
-            System.out.println("Author: " + phrase.getAuthor());
+            logger.info("Random Phrase: " + phrase.getPhrase());
+            logger.info("Book: " + phrase.getBook());
+            logger.info("Author: " + phrase.getAuthor());
 
             List<Word> selectedWords = getSelectedWords(phrase);
 
-            Puzzle puzzle = new Puzzle(phrase.getPhrase(), selectedWords);
-            System.out.println(puzzle);
+            Puzzle puzzle = new Puzzle(phrase, selectedWords);
+            logger.info(puzzle.toString());
 
             PuzzleImage puzzleImage = new PuzzleImage(puzzle);
-            puzzleImage.generate("puzzles/src/main/resources/images", "puzzle.png");
-            
+            puzzleImage.generate("src/main/resources/images", "puzzle.png");
+
         } else {
-            System.out.println("No phrases found.");
+            logger.warn("No phrases found.");
         }
     }
 
     private List<Word> getSelectedWords(Phrase phrase) {
-        WordReader wordReader = new WordReader();
-        List<Word> words = loadWords(wordReader);
+        WordReader wordReader = new WordReader("src/main/resources/words/Word_List.xlsx");
 
         List<Word> selectedWords = new ArrayList<>();
-        for (char c : phrase.getPhrase().toCharArray()) {
-            Word word = wordReader.getWordWith(c, words);
+        for (char c : phrase.getCharactersInPhrase().toCharArray()) {
+            Word word = wordReader.getWordWith(c);
             if (word != null) {
                 selectedWords.add(word);
+            } else {
+                selectedWords.add(new Word());
+                logger.warn("No word found for character: " + c);
             }
         }
         return selectedWords;
-    }
-
-    private List<Word> loadWords(WordReader wordReader) {
-        try {
-            return wordReader.readWordsFromExcel("src/main/resources/words/Word_List.xlsx");
-        } catch (IOException e) {
-            System.err.println("Error reading words from Excel file: " + e.getMessage());
-            return new ArrayList<>();
-        }
     }
 
 }

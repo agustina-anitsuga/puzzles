@@ -69,31 +69,32 @@ public class WordReaderTest {
 
     @Test
     public void testGetWordWith() {
-        WordReader wordReader = new WordReader();
+        
         List<Word> words = List.of(
             new Word(1, "apple", "A fruit"),
             new Word(2, "banana", "Another fruit"),
             new Word(3, "cherry", "Yet another fruit")
         );
+        WordReader wordReader = new WordReader(words);
 
-        Word word = wordReader.getWordWith('a', words);
+        Word word = wordReader.getWordWith('a');
         assertNotNull(word, "A word containing the character 'a' should be found");
         assertTrue(word.getWord().contains("a"), "The word should contain the character 'a'");
 
-        Word nonExistent = wordReader.getWordWith('z', words);
+        Word nonExistent = wordReader.getWordWith('z');
         assertNull(nonExistent, "No word should be found containing the character 'z'");
     }
 
     @Test
     public void testGetWordWithMultipleMatches() {
-        WordReader wordReader = new WordReader();
         List<Word> words = List.of(
             new Word(1, "apple", "A fruit"),
             new Word(2, "banana", "Another fruit"),
             new Word(3, "cherry", "Yet another fruit")
         );
+        WordReader wordReader = new WordReader(words);
 
-        Word word = wordReader.getWordWith('a', words);
+        Word word = wordReader.getWordWith('a');
         assertNotNull(word, "A word containing the character 'a' should be found");
         assertTrue(word.getWord().contains("a"), "The word should contain the character 'a'");
     }

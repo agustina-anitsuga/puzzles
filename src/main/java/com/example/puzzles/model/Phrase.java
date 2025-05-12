@@ -22,6 +22,10 @@ public class Phrase {
         return phrase;
     }
 
+    public String getCharactersInPhrase() {
+        return phrase.replaceAll("[\\p{Punct}\\s]", "").toLowerCase();
+    }
+
     public String getBook() {
         return book;
     }

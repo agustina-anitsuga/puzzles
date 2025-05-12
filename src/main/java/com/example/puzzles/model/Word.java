@@ -6,6 +6,12 @@ public class Word {
     private String word;
     private String definition;
 
+    public Word() {
+        this.id = 0;
+        this.word = "";
+        this.definition = "";
+    }
+
     public Word(int id, String word, String definition) {
         this.id = id;
         this.word = word;
@@ -31,5 +37,9 @@ public class Word {
                 ", word='" + word + '\'' +
                 ", definition='" + definition + '\'' +
                 '}';
+    }
+
+    public int indexOf(char character) {
+        return word.toLowerCase().indexOf(character);
     }
 }

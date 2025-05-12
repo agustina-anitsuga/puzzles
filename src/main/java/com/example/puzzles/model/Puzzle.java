@@ -4,16 +4,20 @@ import java.util.List;
 
 public class Puzzle {
     
-    private String phrase;
+    private Phrase phrase;
     private List<Word> words;
 
-    public Puzzle(String phrase, List<Word> words) {
+    public Puzzle(Phrase phrase, List<Word> words) {
         this.phrase = phrase;
         this.words = words;
     }
 
-    public String getPhrase() {
+    public Phrase getPhrase() {
         return phrase;
+    }
+
+    public int getPhraseLength() {
+        return phrase.getCharactersInPhrase().length();
     }
 
     public List<Word> getWords() {

@@ -2,11 +2,15 @@ package com.example.puzzles.wiktionary;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.List;
 
 public class DictionaryBuilder {
+
+    private static final Logger logger = LogManager.getLogger(DictionaryBuilder.class);
 
     public static void buildDictionary(String inputFilePath, String outputFilePath) throws IOException {
         WiktionaryDefinitionFetcher fetcher = new WiktionaryDefinitionFetcher();
@@ -26,7 +30,7 @@ public class DictionaryBuilder {
             int rowIndex = 1;
 
             while ((line = reader.readLine()) != null) {
-                System.out.println("Processing word: " + line);
+                logger.info("Processing word: " + line);
                 Thread.sleep(1000); // Add a 1-second delay between service calls
                 List<String> definitions = fetcher.fetchDefinition(line);
                 if (definitions.isEmpty()) {
@@ -47,7 +51,7 @@ public class DictionaryBuilder {
 
             workbook.write(fileOut);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Thread interrupted: " + e.getMessage(), e);
         }
     }
 
@@ -56,9 +60,9 @@ public class DictionaryBuilder {
             String inputFilePath = "src/main/resources/words/wiktionary-words.txt";
             String outputFilePath = "src/main/resources/words/Word_List.xlsx";
             buildDictionary(inputFilePath, outputFilePath);
-            System.out.println("Dictionary built successfully.");
+            logger.info("Dictionary built successfully.");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error building dictionary: " + e.getMessage(), e);
         }
     }
 }

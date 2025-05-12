@@ -11,7 +11,12 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class WiktionaryFrequencyList {
+
+    private static final Logger logger = LogManager.getLogger(WiktionaryFrequencyList.class);
 
     public static void processFrequencyFile(String inputFile, String outputFilePath) throws IOException {
         
@@ -51,9 +56,9 @@ public class WiktionaryFrequencyList {
             String inputFile = getProperty("wiktionary.input.file");
             String outputFilePath = getProperty("words.file.path");
             processFrequencyFile(inputFile, outputFilePath);
-            System.out.println("Frequency file processed successfully.");
+            logger.info("Frequency file processed successfully.");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error processing frequency file: " + e.getMessage(), e);
         }
     }
 

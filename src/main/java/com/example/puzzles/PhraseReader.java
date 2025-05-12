@@ -3,6 +3,8 @@ package com.example.puzzles;
 import com.example.puzzles.model.Phrase;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Random;
 
 public class PhraseReader {
+
+    private static final Logger logger = LogManager.getLogger(PhraseReader.class);
 
     public List<Phrase> readPhrasesFromExcel(String filePath) throws IOException {
         List<Phrase> phrases = new ArrayList<>();
@@ -55,7 +59,7 @@ public class PhraseReader {
         // validate the file path
         URL resource = getClass().getClassLoader().getResource(resourcePath);
         if (resource == null) {
-            System.err.println("File not found: " + resourcePath);
+            logger.error("File not found: " + resourcePath);
             return null;
         }
 
@@ -64,7 +68,7 @@ public class PhraseReader {
         try {
             phrases = readPhrasesFromExcel(resource.getPath());
         } catch (IOException e) {
-            System.err.println("Error reading phrases from Excel file: " + e.getMessage());
+            logger.error("Error reading phrases from Excel file: " + e.getMessage(), e);
             return null;
         }
 

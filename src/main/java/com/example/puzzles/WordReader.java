@@ -13,8 +13,26 @@ import java.util.Random;
 
 public class WordReader {
 
+    private List<Word> words;
+
+    public WordReader ( ){
+    }
+
+    public WordReader (List<Word> words) {
+        this.words = words;
+    }
+
+    public WordReader ( String filePath ){
+        try {
+            words = this.readWordsFromExcel(filePath);
+        } catch (IOException e) {
+            System.err.println("Error reading words from Excel file: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     public List<Word> readWordsFromExcel(String filePath) throws IOException {
-        List<Word> words = new ArrayList<>();
+        List<Word> twords = new ArrayList<>();
 
         try (FileInputStream fis = new FileInputStream(new File(filePath));
              Workbook workbook = new XSSFWorkbook(fis)) {
@@ -30,18 +48,18 @@ public class WordReader {
                 String word = row.getCell(1).getStringCellValue();
                 String definition = row.getCell(2).getStringCellValue();
 
-                words.add(new Word(id, word, definition));
+                twords.add(new Word(id, word, definition));
             }
         }
 
-        return words;
+        return twords;
     }
 
-    public Word getWordWith(char character, List<Word> words) {
+    public Word getWordWith(char character) {
         List<Word> matchingWords = new ArrayList<>();
         
         for (Word word : words) {
-            if (word.getWord().indexOf(character) != -1) {
+            if ( (word.indexOf(character)) != -1) {
                 matchingWords.add(word);
             }
         }

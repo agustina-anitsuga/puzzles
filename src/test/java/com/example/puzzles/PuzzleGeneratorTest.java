@@ -33,9 +33,11 @@ public class PuzzleGeneratorTest {
         words.add(new Word(2, "banana", "Another fruit"));
         words.add(new Word(3, "cherry", "Yet another fruit"));
 
-        Puzzle puzzle = new Puzzle("abc", words);
+        Puzzle puzzle = new Puzzle(
+            new Phrase(1,"abc","book","author"), 
+            words);
 
-        assertEquals("abc", puzzle.getPhrase(), "Phrase should match the input");
+        assertEquals("abc", puzzle.getPhrase().getPhrase(), "Phrase should match the input");
         assertEquals(3, puzzle.getWords().size(), "Words list should contain 3 words");
         assertTrue(puzzle.getWords().containsAll(words), "Words list should contain all added words");
     }
