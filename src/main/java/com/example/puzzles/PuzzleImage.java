@@ -28,7 +28,7 @@ public class PuzzleImage {
         this.puzzle = puzzle;
 
         gridSize = Math.max(
-                puzzle.getPhraseLength(), puzzle.getWords().size());
+                puzzle.getPhraseLength(), puzzle.getWords().size()) + 1;
         cellSize = 50;
         imageSize = gridSize * cellSize;
     }
@@ -44,7 +44,7 @@ public class PuzzleImage {
         g2d.drawRect(x, y, cellSize, cellSize);
     }
 
-    private void drawLetter(Graphics2D g2d, char letter, int x, int y, int cellSize) {
+    private void drawLetter(Graphics2D g2d, String letter, int x, int y, int cellSize) {
         g2d.setColor(Color.BLACK);
         FontMetrics metrics = g2d.getFontMetrics();
         int textX = x + (cellSize - metrics.stringWidth(String.valueOf(letter))) / 2;
@@ -59,7 +59,7 @@ public class PuzzleImage {
             int y = i * cellSize;
             drawSquare(g2d, x, y, cellSize, true);
             if(isSolution)
-                drawLetter(g2d, currentChar, x, y, cellSize);
+                drawLetter(g2d, String.valueOf(currentChar), x, y, cellSize);
         }
     }
 
@@ -73,6 +73,12 @@ public class PuzzleImage {
                 continue;
             }
 
+            // Draw the sequence number
+            g2d.setColor(Color.BLACK);
+            int numberX = (centerColumn - index - 1) * cellSize; // Adjust position for the number
+            int numberY = i * cellSize + cellSize / 3; // Adjust position for the number
+            drawLetter(g2d, String.valueOf(i + 1), numberX, numberY, cellSize/2);
+
             for (int j = 0; j < word.length(); j++) {
                 char wordChar = word.charAt(j);
                 int x = (j - index + centerColumn) * cellSize;
@@ -81,7 +87,7 @@ public class PuzzleImage {
                 boolean isIntersecting = (j == index);
                 drawSquare(g2d, x, y, cellSize, isIntersecting);
                 if(isSolution)
-                    drawLetter(g2d, wordChar, x, y, cellSize);
+                    drawLetter(g2d, String.valueOf(wordChar), x, y, cellSize);
             }
         }
     }
