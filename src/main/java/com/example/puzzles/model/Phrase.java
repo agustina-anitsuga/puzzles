@@ -23,7 +23,10 @@ public class Phrase {
     }
 
     public String getCharactersInPhrase() {
-        return phrase.replaceAll("[\\p{Punct}\\s]", "").toLowerCase();
+        return phrase.replaceAll("[\\p{Punct}\\s]", "")
+                     .replaceAll("'","")
+                     .replaceAll("’", "")
+                     .toLowerCase();
     }
 
     public String getBook() {

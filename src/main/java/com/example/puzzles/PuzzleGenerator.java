@@ -26,32 +26,36 @@ public class PuzzleGenerator {
     }
 
     public void generate() {
-
         PhraseReader phraseReader = new PhraseReader();
         Phrase phrase = phraseReader.getRandomPhrase(getProperty("phrases.file.path"));
-
         if (phrase != null) {
-
-            logger.info("Random Phrase: " + phrase.getPhrase());
-            logger.info("Book: " + phrase.getBook());
-            logger.info("Author: " + phrase.getAuthor());
-
-            List<Word> selectedWords = getSelectedWords(phrase);
-
-            Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, selectedWords);
-            logger.info(puzzle.toString());
-
-            PuzzleFileGenerator puzzleFileGenerator = new PuzzleFileGenerator(puzzle);
-            puzzleFileGenerator.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
-            puzzleFileGenerator.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
-
-            PuzzleImage puzzleImage = new PuzzleImage(puzzle);
-            puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
-            puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
-            
+            getPuzzleForPhrase(phrase);
         } else {
             logger.warn("No phrases found.");
         }
+    }
+
+    private void getPuzzleForPhrase(Phrase phrase) {
+        logger.info("Random Phrase: " + phrase.getPhrase());
+        logger.info("Book: " + phrase.getBook());
+        logger.info("Author: " + phrase.getAuthor());
+
+        Puzzle puzzle = buildPuzzle(phrase);
+
+        PuzzleFileGenerator puzzleFileGenerator = new PuzzleFileGenerator(puzzle);
+        puzzleFileGenerator.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
+        puzzleFileGenerator.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
+
+        PuzzleImage puzzleImage = new PuzzleImage(puzzle);
+        puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
+        puzzleImage.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
+    }
+
+    private Puzzle buildPuzzle(Phrase phrase) {
+        List<Word> selectedWords = getSelectedWords(phrase);
+        Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, selectedWords);
+        logger.info(puzzle.toString());
+        return puzzle;
     }
 
     private List<Word> getSelectedWords(Phrase phrase) {
