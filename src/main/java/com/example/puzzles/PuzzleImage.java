@@ -33,26 +33,7 @@ public class PuzzleImage {
         imageSize = gridSize * cellSize;
     }
 
-    public void generate( String path, String fileName) {
-
-        String phrase = this.puzzle.getPhrase().getCharactersInPhrase();
-        List<Word> words = this.puzzle.getWords();
-
-        if(phrase.length() != words.size()) {
-            logger.error("Phrase length does not match the number of words.");
-            return;
-        }
-        
-        BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = image.createGraphics();
-
-        g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, imageSize, imageSize);
-
-        g2d.setColor(Color.BLACK);
-        g2d.setFont(new Font("Arial", Font.PLAIN, 20));
-
-        int centerColumn = gridSize / 2;
+    private void drawPhrase(Graphics2D g2d, String phrase, int centerColumn, int cellSize) {
         for (int i = 0; i < phrase.length(); i++) {
             char currentChar = phrase.charAt(i);
             int x = centerColumn * cellSize;
@@ -67,21 +48,26 @@ public class PuzzleImage {
             int textY = y + ((cellSize - metrics.getHeight()) / 2) + metrics.getAscent();
             g2d.drawString(String.valueOf(currentChar), textX, textY);
         }
+    }
+
+    private void drawWords(Graphics2D g2d, String phrase, List<Word> words, int centerColumn, int cellSize) {
 
         for (int i = 0; i < words.size(); i++) {
-            Character phraseCharacter = phrase.charAt(i);
-
             String word = words.get(i).getWord().toLowerCase();
+
+            int index = word.indexOf(phrase.charAt(i)) ;    
+            if (index == -1) {
+                logger.error("Word does not contain the character from the phrase: " + word);
+                continue;
+            }
+
             for (int j = 0; j < word.length(); j++) {
                 char wordChar = word.charAt(j);
-
-                phraseCharacter = Character.toLowerCase(phraseCharacter);
-
-                int x = j * cellSize;
+                int x = (j-index+centerColumn) * cellSize;
                 int y = i * cellSize;
 
                 // Check if the phrase intersects with the current word
-                if (j < phrase.length() && phrase.charAt(j) == wordChar) {
+                if ( j == index ) {
                     g2d.setColor(new Color(240, 240, 240)); // Grey background for intersection
                     g2d.fillRect(x, y, cellSize, cellSize);
                 } else {
@@ -98,6 +84,29 @@ public class PuzzleImage {
                 g2d.drawString(String.valueOf(wordChar), textX, textY);
             }
         }
+    }
+
+    public void generate(String path, String fileName) {
+        String phrase = this.puzzle.getPhrase().getCharactersInPhrase();
+        List<Word> words = this.puzzle.getWords();
+
+        if (phrase.length() != words.size()) {
+            logger.error("Phrase length does not match the number of words.");
+            return;
+        }
+
+        BufferedImage image = new BufferedImage(imageSize, imageSize, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = image.createGraphics();
+
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, imageSize, imageSize);
+
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("Arial", Font.PLAIN, 20));
+
+        int centerColumn = gridSize / 2;
+        drawPhrase(g2d, phrase, centerColumn, cellSize);
+        drawWords(g2d, phrase, words, centerColumn, cellSize);
 
         g2d.dispose();
 
@@ -111,7 +120,7 @@ public class PuzzleImage {
             ImageIO.write(image, "png", outputFile);
             logger.info("Puzzle image generated at: " + outputFile.getAbsolutePath());
         } catch (IOException e) {
-            logger.error("Error saving puzzle image: " + e.getMessage());
+            logger.error("Error saving puzzle image: " + e.getMessage(), e);
         }
     }
 }
