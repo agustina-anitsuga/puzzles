@@ -7,7 +7,6 @@ import org.apache.poi.util.Units;
 
 import java.io.FileInputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PuzzleBookDocumentWriter {
     
