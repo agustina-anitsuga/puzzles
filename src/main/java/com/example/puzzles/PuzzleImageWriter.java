@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 
@@ -18,29 +19,28 @@ public class PuzzleImageWriter {
 
     private Puzzle puzzle;
 
-    private int gridSize;
+    private int gridHeight;
+    private int gridWidth;
     private int cellSize;
     private int imageWidth;
     private int imageHeight;
+    private int maxToLeft = 0;
+    private int maxToRight = 0;
 
     private static final Logger logger = LogManager.getLogger(PuzzleImageWriter.class);
 
     public PuzzleImageWriter( Puzzle puzzle ){
         this.puzzle = puzzle;
-
-        gridSize = Math.max(
-                puzzle.getPhraseLength(), puzzle.getWords().size()) + 1;
-        cellSize = 50;
-        imageWidth = getWidth(puzzle) * cellSize;
-        imageHeight = (gridSize) * cellSize;
+        setSizes(puzzle);
     }
 
-    private int getWidth(Puzzle aPuzzle) {
-        int maxToLeft = 0;
-        int maxToRight = 0;
+    private void setSizes(Puzzle aPuzzle) {
+        gridHeight = puzzle.getPhrase().getChunks().getFirst().length() + 1;
+        cellSize = 50;
+
         int wordNum = 0;
         for (Word word : aPuzzle.getWords()) {
-            char phraseChar = aPuzzle.getPhrase().getCharactersInPhrase().charAt(wordNum);
+            char phraseChar = aPuzzle.getPhrase().getChunks().getFirst().charAt(wordNum++);
             int index = word.getWord().indexOf(phraseChar);
             if( index > maxToLeft ){
                 maxToLeft = index;
@@ -49,7 +49,11 @@ public class PuzzleImageWriter {
                 maxToRight = word.getWord().length() - index;
             }
         }
-        return maxToLeft + maxToRight + 1;
+
+        gridWidth = maxToLeft + maxToRight + 1 + puzzle.getPhrase().getDistanceBetweenChunks();
+
+        imageWidth = gridWidth * cellSize;
+        imageHeight = gridHeight * cellSize;
     }
 
     private void drawSquare(Graphics2D g2d, int x, int y, int cellSize, boolean isIntersecting) {
@@ -112,10 +116,10 @@ public class PuzzleImageWriter {
     }
 
     public void generate(String path, String fileName, boolean isSolution) {
-        String phrase = this.puzzle.getPhrase().getCharactersInPhrase();
+        Phrase phrase = this.puzzle.getPhrase();
         List<Word> words = this.puzzle.getWords();
 
-        if (phrase.length() != words.size()) {
+        if (phrase.getChunks().getFirst().length() != words.size()) {
             logger.error("Phrase length does not match the number of words.");
             return;
         }
@@ -129,9 +133,13 @@ public class PuzzleImageWriter {
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
 
-        int centerColumn = gridSize / 2;
-        drawPhrase(g2d, phrase, centerColumn, cellSize, isSolution);
-        drawWords(g2d, phrase, words, centerColumn, cellSize, isSolution);
+        int centerColumn = (maxToLeft+1) ;
+        drawWords(g2d, phrase.getChunks().getFirst(), words, centerColumn, cellSize, isSolution);
+        drawPhrase(g2d, phrase.getChunks().getFirst(), centerColumn, cellSize, isSolution);
+        if(phrase.chunkCount() > 1) {
+            drawPhrase(g2d, phrase.getChunks().getLast(), 
+                centerColumn + phrase.getDistanceBetweenChunks() + 1, cellSize, isSolution);
+        }
 
         g2d.dispose();
 

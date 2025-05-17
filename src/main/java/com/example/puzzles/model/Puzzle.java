@@ -21,7 +21,7 @@ public class Puzzle {
     }
 
     public int getPhraseLength() {
-        return phrase.getCharactersInPhrase().length();
+        return phrase.length();
     }
 
     public List<Word> getWords() {
@@ -36,11 +36,12 @@ public class Puzzle {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Phrase: ").append(phrase).append("\n");
+        sb.append(phrase).append("\n");
         sb.append("Words:\n");
         for (Word word : words) {
             sb.append(word).append("\n");
         }
         return sb.toString();
     }
+
 }

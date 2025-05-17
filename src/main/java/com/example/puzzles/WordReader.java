@@ -81,7 +81,7 @@ public class WordReader {
                 continue; 
             } else {
                 int newIndex = index + distance;
-                if( word.charAt(newIndex)==b){
+                if( word.getWord().length()>newIndex && word.charAt(newIndex)==b){
                     matchingWords.add(word);
                 }
             }

@@ -29,16 +29,14 @@ public class PuzzleGenerator {
         PhraseReader phraseReader = new PhraseReader();
         Phrase phrase = phraseReader.getRandomPhrase(getProperty("phrases.file.path"));
         if (phrase != null) {
-            getPuzzleForPhrase(phrase);
+            buildPuzzleForPhrase(phrase);
         } else {
             logger.warn("No phrases found.");
         }
     }
 
-    private void getPuzzleForPhrase(Phrase phrase) {
-        logger.info("Random Phrase: " + phrase.getPhrase());
-        logger.info("Book: " + phrase.getBook());
-        logger.info("Author: " + phrase.getAuthor());
+    private void buildPuzzleForPhrase(Phrase phrase) {
+        logger.info("Random Phrase: " + phrase);
 
         Puzzle puzzle = buildPuzzle(phrase);
 
@@ -62,13 +60,39 @@ public class PuzzleGenerator {
         WordReader wordReader = new WordReader(getProperty("word.list.file.path"));
 
         List<Word> selectedWords = new ArrayList<>();
-        for (char c : phrase.getCharactersInPhrase().toCharArray()) {
-            Word word = wordReader.getWordWith(c);
-            if (word != null) {
-                selectedWords.add(word);
-            } else {
-                selectedWords.add(new Word());
-                logger.warn("No word found for character: " + c);
+
+        if(phrase.chunkCount()>1) { // only up to 2 phrases supported currently
+            int i=0;
+            String secondPhrase = phrase.getChunks().getLast();
+            for (char c1 : phrase.getChunks().getFirst().toCharArray()) {
+                if( secondPhrase.length() > i ) {
+                char c2 = secondPhrase.charAt(i++);
+                Word word = wordReader.getWordWith(c1, c2,3);
+                    if (word != null) {
+                        selectedWords.add(word);
+                    } else {
+                        selectedWords.add(new Word());
+                        logger.warn("No word found for characters: " + c1 + ", " + c2);
+                    }
+                } else {
+                    Word word = wordReader.getWordWith(c1);
+                    if (word != null) {
+                        selectedWords.add(word);
+                    } else {
+                        selectedWords.add(new Word());
+                        logger.warn("No word found for character: " + c1);
+                    }
+                }
+            }
+        } else {
+            for (char c : phrase.getChunks().getFirst().toCharArray()) {
+                Word word = wordReader.getWordWith(c);
+                if (word != null) {
+                    selectedWords.add(word);
+                } else {
+                    selectedWords.add(new Word());
+                    logger.warn("No word found for character: " + c);
+                }
             }
         }
         return selectedWords;

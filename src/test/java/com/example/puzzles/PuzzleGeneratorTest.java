@@ -22,7 +22,6 @@ public class PuzzleGeneratorTest {
         Phrase phrase = phraseReader.getRandomPhrase("phrases/Iconic_Book_Quotes.xlsx");
 
         assertNotNull(phrase, "Random phrase should not be null");
-        assertNotNull(phrase.getPhrase(), "Phrase text should not be null");
         assertNotNull(phrase.getBook(), "Book name should not be null");
         assertNotNull(phrase.getAuthor(), "Author name should not be null");
     }
