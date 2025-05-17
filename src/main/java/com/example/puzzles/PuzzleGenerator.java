@@ -49,7 +49,7 @@ public class PuzzleGenerator {
         puzzleImageWriter.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
     }
 
-    private Puzzle buildPuzzle(Phrase phrase) {
+    public Puzzle buildPuzzle(Phrase phrase) {
         List<Word> selectedWords = getSelectedWords(phrase);
         Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, selectedWords);
         logger.info(puzzle.toString());
