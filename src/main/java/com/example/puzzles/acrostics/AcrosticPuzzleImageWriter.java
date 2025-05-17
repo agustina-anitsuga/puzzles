@@ -1,4 +1,4 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import com.example.puzzles.model.Word;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PuzzleImageWriter {
+public class AcrosticPuzzleImageWriter {
 
     private Puzzle puzzle;
 
@@ -27,9 +27,9 @@ public class PuzzleImageWriter {
     private int maxToLeft = 0;
     private int maxToRight = 0;
 
-    private static final Logger logger = LogManager.getLogger(PuzzleImageWriter.class);
+    private static final Logger logger = LogManager.getLogger(AcrosticPuzzleImageWriter.class);
 
-    public PuzzleImageWriter( Puzzle puzzle ){
+    public AcrosticPuzzleImageWriter( Puzzle puzzle ){
         this.puzzle = puzzle;
         setSizes(puzzle);
     }

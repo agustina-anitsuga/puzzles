@@ -1,4 +1,4 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
@@ -11,7 +11,7 @@ import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PuzzleImageWriterTest {
+public class AcrosticPuzzleImageWriterTest {
     @Test
     public void testGenerateImageCreatesFile() {
         Phrase phrase = new Phrase(1, "abc", "Book", "Author");
@@ -21,7 +21,7 @@ public class PuzzleImageWriterTest {
             new Word(3, "cherry", "Yet another fruit")
         );
         Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, words);
-        PuzzleImageWriter writer = new PuzzleImageWriter(puzzle);
+        AcrosticPuzzleImageWriter writer = new AcrosticPuzzleImageWriter(puzzle);
         String outputDir = "src/test/resources/images";
         String fileName = "test-image.png";
         writer.generate(outputDir, fileName, true);

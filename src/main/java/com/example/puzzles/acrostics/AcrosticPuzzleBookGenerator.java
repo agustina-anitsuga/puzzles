@@ -1,7 +1,9 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
+import com.example.puzzles.tools.PhraseReader;
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import java.io.File;
@@ -11,21 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PuzzleBookGenerator {
+public class AcrosticPuzzleBookGenerator {
+
     private static final int PUZZLE_COUNT = 5;
+    private static final int MIN_PHRASE_LENGTH = 15;
+    private static final int MAX_PHRASE_LENGTH = 60;
     private static final String PHRASES_FILE = "phrases/Iconic_Book_Quotes.xlsx";
     private static final String OUTPUT_DOCX = "PuzzleBook.docx";
     private static final String OUTPUT_DIR = "output";
 
     public static void main(String[] args) throws Exception {
-        new PuzzleBookGenerator().generateBook();
+        new AcrosticPuzzleBookGenerator().generateBook();
     }
 
     public void generateBook() throws Exception {
         List<Phrase> selectedPhrases = selectPhrases();
         List<Puzzle> puzzles = generatePuzzles(selectedPhrases);
         List<String> imagePaths = generatePuzzleImages(puzzles);
-        XWPFDocument doc = new PuzzleBookDocumentWriter().createDocument(puzzles, imagePaths);
+        XWPFDocument doc = new AcrosticPuzzleBookDocumentWriter().createDocument(puzzles, imagePaths);
         saveDocument(doc);
     }
 
@@ -37,11 +42,15 @@ public class PuzzleBookGenerator {
         if (allPhrases.size() < PUZZLE_COUNT) {
             throw new IllegalArgumentException("Not enough unique phrases in the source file.");
         }
-        return allPhrases.stream().distinct().limit(PUZZLE_COUNT).collect(Collectors.toList());
+        return allPhrases.stream()
+            .filter(p -> p.getCharactersInPhrase().length() >= MIN_PHRASE_LENGTH && p.getCharactersInPhrase().length() <= MAX_PHRASE_LENGTH)
+            .distinct()
+            .limit(PUZZLE_COUNT)
+            .collect(Collectors.toList());
     }
 
     private List<Puzzle> generatePuzzles(List<Phrase> phrases) {
-        PuzzleGenerator generator = new PuzzleGenerator();
+        AcrosticPuzzleGenerator generator = new AcrosticPuzzleGenerator();
         List<Puzzle> puzzles = new ArrayList<>();
         for (Phrase phrase : phrases) {
             puzzles.add(generator.buildPuzzle(phrase));
@@ -57,7 +66,7 @@ public class PuzzleBookGenerator {
             Puzzle puzzle = puzzles.get(i);
             String imageName = "puzzle-" + (i + 1) + ".png";
             String imagePath = new File(imageDir, imageName).getAbsolutePath();
-            new PuzzleImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName, false);
+            new AcrosticPuzzleImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName, false);
             imagePaths.add(imagePath);
         }
         return imagePaths;

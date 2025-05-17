@@ -1,4 +1,4 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,13 +11,13 @@ import org.apache.logging.log4j.Logger;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 
-public class PuzzleFileWriter {
+public class AcrosticPuzzleFileWriter {
 
-    private static final Logger logger = LogManager.getLogger(PuzzleFileWriter.class);
+    private static final Logger logger = LogManager.getLogger(AcrosticPuzzleFileWriter.class);
 
     private Puzzle puzzle;
 
-    public PuzzleFileWriter( Puzzle puzzle ) {
+    public AcrosticPuzzleFileWriter( Puzzle puzzle ) {
         this.puzzle = puzzle;
     }
 

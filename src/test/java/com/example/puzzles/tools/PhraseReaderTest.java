@@ -1,6 +1,7 @@
-package com.example.puzzles;
+package com.example.puzzles.tools;
 
 import com.example.puzzles.model.Phrase;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

@@ -1,8 +1,10 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.tools.PhraseReader;
+
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -14,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for simple App.
  */
-public class PuzzleGeneratorTest {
+public class AcrosticPuzzleGeneratorTest {
 
     @Test
     public void testGetRandomPhrase() {

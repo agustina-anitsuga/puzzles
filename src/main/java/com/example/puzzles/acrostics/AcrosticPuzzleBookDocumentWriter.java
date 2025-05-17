@@ -1,4 +1,4 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.util.List;
 
-public class PuzzleBookDocumentWriter {
+public class AcrosticPuzzleBookDocumentWriter {
     
     public XWPFDocument createDocument(List<Puzzle> puzzles, List<String> imagePaths) throws Exception {
         XWPFDocument doc = new XWPFDocument();

@@ -1,6 +1,7 @@
-package com.example.puzzles;
+package com.example.puzzles.tools;
 
 import com.example.puzzles.model.Word;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.apache.poi.ss.usermodel.Row;

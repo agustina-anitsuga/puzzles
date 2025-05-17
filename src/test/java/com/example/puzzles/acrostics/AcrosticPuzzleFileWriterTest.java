@@ -1,4 +1,4 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PuzzleFileWriterTest {
+public class AcrosticPuzzleFileWriterTest {
 
     @Test
     public void testGetSortedLetters() {
@@ -21,7 +21,7 @@ public class PuzzleFileWriterTest {
         );
         Phrase phrase = new Phrase(1, "hello", "book", "author");
         Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, words);
-        PuzzleFileWriter writer = new PuzzleFileWriter(puzzle);
+        AcrosticPuzzleFileWriter writer = new AcrosticPuzzleFileWriter(puzzle);
 
         // Act
         String sortedLetters = writer.getSortedLetters();

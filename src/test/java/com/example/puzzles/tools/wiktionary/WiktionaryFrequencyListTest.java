@@ -1,4 +1,4 @@
-package com.example.puzzles.wiktionary;
+package com.example.puzzles.tools.wiktionary;
 
 import org.junit.jupiter.api.Test;
 

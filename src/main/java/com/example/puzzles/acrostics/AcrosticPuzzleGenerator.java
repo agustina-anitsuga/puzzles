@@ -1,7 +1,9 @@
-package com.example.puzzles;
+package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.tools.PhraseReader;
+import com.example.puzzles.tools.WordReader;
 import com.example.puzzles.model.Puzzle;
 
 import java.util.List;
@@ -14,13 +16,13 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PuzzleGenerator {
+public class AcrosticPuzzleGenerator {
 
-    private static final Logger logger = LogManager.getLogger(PuzzleGenerator.class);
+    private static final Logger logger = LogManager.getLogger(AcrosticPuzzleGenerator.class);
 
     public static void main(String[] args) {
         logger.info("Welcome to the Puzzle Generator!");
-        PuzzleGenerator generator = new PuzzleGenerator();
+        AcrosticPuzzleGenerator generator = new AcrosticPuzzleGenerator();
         generator.generate();
         logger.info("Puzzle generation completed.");
     }
@@ -40,11 +42,11 @@ public class PuzzleGenerator {
 
         Puzzle puzzle = buildPuzzle(phrase);
 
-        PuzzleFileWriter puzzleFileWriter = new PuzzleFileWriter(puzzle);
+        AcrosticPuzzleFileWriter puzzleFileWriter = new AcrosticPuzzleFileWriter(puzzle);
         puzzleFileWriter.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
         puzzleFileWriter.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
 
-        PuzzleImageWriter puzzleImageWriter = new PuzzleImageWriter(puzzle);
+        AcrosticPuzzleImageWriter puzzleImageWriter = new AcrosticPuzzleImageWriter(puzzle);
         puzzleImageWriter.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
         puzzleImageWriter.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
     }
