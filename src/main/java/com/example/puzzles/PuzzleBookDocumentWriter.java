@@ -89,7 +89,6 @@ public class PuzzleBookDocumentWriter {
         XWPFParagraph charactersPara = doc.createParagraph();
         XWPFRun charactersRun = charactersPara.createRun();
         charactersRun.setText("Characters: " + getSortedLetters(puzzle));
-        charactersRun.setItalic(true);
         charactersRun.addBreak(BreakType.PAGE);
     }
 
