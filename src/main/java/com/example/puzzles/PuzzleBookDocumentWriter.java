@@ -4,14 +4,34 @@ import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.util.Units;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import java.io.FileInputStream;
+import java.math.BigInteger;
 import java.util.List;
 
 public class PuzzleBookDocumentWriter {
     
     public XWPFDocument createDocument(List<Puzzle> puzzles, List<String> imagePaths) throws Exception {
         XWPFDocument doc = new XWPFDocument();
+        // Set page size to 8.5 x 11 inches (US Letter)
+        CTBody body = doc.getDocument().getBody();
+        if (body.isSetSectPr()) {
+            CTSectPr sectPr = body.getSectPr();
+            if (sectPr.isSetPgSz()) {
+                sectPr.getPgSz().setW(BigInteger.valueOf(12240)); // 8.5 * 1440
+                sectPr.getPgSz().setH(BigInteger.valueOf(15840)); // 11 * 1440
+            } else {
+                CTPageSz pageSz = sectPr.addNewPgSz();
+                pageSz.setW(BigInteger.valueOf(12240));
+                pageSz.setH(BigInteger.valueOf(15840));
+            }
+        } else {
+            CTSectPr sectPr = body.addNewSectPr();
+            CTPageSz pageSz = sectPr.addNewPgSz();
+            pageSz.setW(BigInteger.valueOf(12240));
+            pageSz.setH(BigInteger.valueOf(15840));
+        }
         addTitlePage(doc);
         addPuzzlePages(doc, puzzles, imagePaths);
         addSolutionsSection(doc, puzzles);
