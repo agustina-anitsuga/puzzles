@@ -54,7 +54,7 @@ public class WiktionaryFrequencyList {
     public static void main(String[] args) {
         try {
             String inputFile = getProperty("wiktionary.input.file");
-            String outputFilePath = getProperty("words.file.path");
+            String outputFilePath = getProperty("word.list.file.path");
             processFrequencyFile(inputFile, outputFilePath);
             logger.info("Frequency file processed successfully.");
         } catch (IOException e) {

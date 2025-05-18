@@ -3,6 +3,7 @@ package com.example.puzzles.acrostics;
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.tools.PhraseReader;
+import com.example.puzzles.tools.PuzzleProperties;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -18,9 +19,6 @@ public class AcrosticPuzzleBookGenerator {
     private static final int PUZZLE_COUNT = 5;
     private static final int MIN_PHRASE_LENGTH = 15;
     private static final int MAX_PHRASE_LENGTH = 60;
-    private static final String PHRASES_FILE = "phrases/Iconic_Book_Quotes.xlsx";
-    private static final String OUTPUT_DOCX = "PuzzleBook.docx";
-    private static final String OUTPUT_DIR = "output";
 
     public static void main(String[] args) throws Exception {
         new AcrosticPuzzleBookGenerator().generateBook();
@@ -36,8 +34,9 @@ public class AcrosticPuzzleBookGenerator {
 
     private List<Phrase> selectPhrases() throws IOException {
         PhraseReader phraseReader = new PhraseReader();
+        String phrasesFile = PuzzleProperties.getProperty("phrases.file.path");
         List<Phrase> allPhrases = phraseReader.readPhrasesFromExcel(
-            new File("src/main/resources/" + PHRASES_FILE).getAbsolutePath()
+            new File(phrasesFile).getAbsolutePath()
         );
         if (allPhrases.size() < PUZZLE_COUNT) {
             throw new IllegalArgumentException("Not enough unique phrases in the source file.");
@@ -59,7 +58,8 @@ public class AcrosticPuzzleBookGenerator {
     }
 
     private List<String> generatePuzzleImages(List<Puzzle> puzzles) {
-        File imageDir = new File(OUTPUT_DIR, "images");
+        String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
+        File imageDir = new File(outputDir);
         imageDir.mkdirs();
         List<String> imagePaths = new ArrayList<>();
         for (int i = 0; i < puzzles.size(); i++) {
@@ -73,11 +73,13 @@ public class AcrosticPuzzleBookGenerator {
     }
 
     private void saveDocument(XWPFDocument doc) throws IOException {
-        new File(OUTPUT_DIR).mkdirs();
-        try (FileOutputStream out = new FileOutputStream(new File(OUTPUT_DIR, OUTPUT_DOCX))) {
+        String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
+        String outputDocx = PuzzleProperties.getProperty("output.acrostic.book.docx");
+        new File(outputDir).mkdirs();
+        try (FileOutputStream out = new FileOutputStream(new File(outputDir, outputDocx))) {
             doc.write(out);
         }
         doc.close();
-        System.out.println("Puzzle book generated: " + new File(OUTPUT_DIR, OUTPUT_DOCX).getAbsolutePath());
+        System.out.println("Puzzle book generated: " + new File(outputDir, outputDocx).getAbsolutePath());
     }
 }

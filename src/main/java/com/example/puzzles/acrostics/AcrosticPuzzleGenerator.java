@@ -5,13 +5,12 @@ import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PhraseReader;
 import com.example.puzzles.tools.WordReader;
 import com.example.puzzles.model.Puzzle;
+import com.example.puzzles.tools.PuzzleProperties;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Properties;
-import java.io.InputStream;
+import java.io.File;
 import java.time.LocalDateTime;
-import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,8 +27,8 @@ public class AcrosticPuzzleGenerator {
     }
 
     public void generate() {
-        PhraseReader phraseReader = new PhraseReader();
-        Phrase phrase = phraseReader.getRandomPhrase(getProperty("phrases.file.path"));
+        String filePath = PuzzleProperties.getProperty("phrases.file.path");
+        Phrase phrase = new PhraseReader().getRandomPhrase(new File(filePath).getAbsolutePath());
         if (phrase != null) {
             buildPuzzleForPhrase(phrase);
         } else {
@@ -43,12 +42,12 @@ public class AcrosticPuzzleGenerator {
         Puzzle puzzle = buildPuzzle(phrase);
 
         AcrosticPuzzleFileWriter puzzleFileWriter = new AcrosticPuzzleFileWriter(puzzle);
-        puzzleFileWriter.generateClueFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
-        puzzleFileWriter.generateSolutionFile(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
+        puzzleFileWriter.generateClueFile(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
+        puzzleFileWriter.generateSolutionFile(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
 
         AcrosticPuzzleImageWriter puzzleImageWriter = new AcrosticPuzzleImageWriter(puzzle);
-        puzzleImageWriter.generate(getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
-        puzzleImageWriter.generate(getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
+        puzzleImageWriter.generate(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
+        puzzleImageWriter.generate(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
     }
 
     public Puzzle buildPuzzle(Phrase phrase) {
@@ -59,7 +58,7 @@ public class AcrosticPuzzleGenerator {
     }
 
     private List<Word> getSelectedWords(Phrase phrase) {
-        WordReader wordReader = new WordReader(getProperty("word.list.file.path"));
+        WordReader wordReader = new WordReader(PuzzleProperties.getProperty("word.list.file.path"));
 
         List<Word> selectedWords = new ArrayList<>();
 
@@ -98,20 +97,6 @@ public class AcrosticPuzzleGenerator {
             }
         }
         return selectedWords;
-    }
-
-    private String getProperty(String key) {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
-            Properties properties = new Properties();
-            if (input == null) {
-                throw new IOException("Unable to find config.properties");
-            }
-            properties.load(input);
-            return properties.getProperty(key);
-        } catch (IOException e) {
-            logger.error("Error reading property: " + key, e);
-            return null;
-        }
     }
 
 }

@@ -55,18 +55,12 @@ public class PhraseReader {
         return phrases;
     }
 
-    public Phrase getRandomPhrase(String resourcePath) {
-        // validate the file path
-        URL resource = getClass().getClassLoader().getResource(resourcePath);
-        if (resource == null) {
-            logger.error("File not found: " + resourcePath);
-            return null;
-        }
+    public Phrase getRandomPhrase(String filePath) {
 
         // read the file
         List<Phrase> phrases = null;
         try {
-            phrases = readPhrasesFromExcel(resource.getPath());
+            phrases = readPhrasesFromExcel(new File(filePath).getPath());
         } catch (IOException e) {
             logger.error("Error reading phrases from Excel file: " + e.getMessage(), e);
             return null;
