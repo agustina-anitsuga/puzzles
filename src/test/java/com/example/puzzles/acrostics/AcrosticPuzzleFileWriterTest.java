@@ -24,7 +24,7 @@ public class AcrosticPuzzleFileWriterTest {
         AcrosticPuzzleFileWriter writer = new AcrosticPuzzleFileWriter(puzzle);
 
         // Act
-        String sortedLetters = writer.getSortedLetters();
+        String sortedLetters = writer.getSortedCharacters();
 
         // Assert
         assertEquals("! a a a e e e e h h h i i j l l n o o r t v v y", sortedLetters, "The sorted letters should match the expected output.");

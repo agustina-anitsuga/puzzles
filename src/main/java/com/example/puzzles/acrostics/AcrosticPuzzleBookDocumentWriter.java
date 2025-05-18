@@ -2,6 +2,8 @@ package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.tools.PuzzleProperties;
+
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.util.Units;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
@@ -42,7 +44,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         XWPFParagraph title = doc.createParagraph();
         title.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun run = title.createRun();
-        run.setText("Puzzle Book");
+        run.setText(PuzzleProperties.getProperty("label.bookTitle"));
         run.setBold(true);
         run.setFontSize(28);
         run.addBreak(BreakType.PAGE);
@@ -59,7 +61,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         XWPFParagraph pTitle = doc.createParagraph();
         pTitle.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun pRun = pTitle.createRun();
-        pRun.setText("Puzzle " + puzzleNumber);
+        pRun.setText(PuzzleProperties.getProperty("label.puzzle")+" " + puzzleNumber);
         pRun.setBold(true);
         pRun.setFontSize(20);
         pRun.addBreak();
@@ -75,7 +77,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         // Clues
         XWPFParagraph cluesPara = doc.createParagraph();
         XWPFRun cluesRun = cluesPara.createRun();
-        cluesRun.setText("Clues:");
+        cluesRun.setText(PuzzleProperties.getProperty("label.clues")+": ");
         cluesRun.setBold(true);
         cluesRun.addBreak();
         int clueNum = 1;
@@ -88,7 +90,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         // Sorted characters from words 
         XWPFParagraph charactersPara = doc.createParagraph();
         XWPFRun charactersRun = charactersPara.createRun();
-        charactersRun.setText("Characters: " + getSortedLetters(puzzle));
+        charactersRun.setText(PuzzleProperties.getProperty("label.characters")+": " + getSortedLetters(puzzle));
         charactersRun.addBreak(BreakType.PAGE);
     }
 
@@ -115,13 +117,13 @@ public class AcrosticPuzzleBookDocumentWriter {
             Puzzle puzzle = puzzles.get(i);
             XWPFParagraph solPara = doc.createParagraph();
             XWPFRun solParaRun = solPara.createRun();
-            solParaRun.setText("Puzzle " + (i + 1) + ": " + puzzle.getPhrase().getPhrase());
+            solParaRun.setText(PuzzleProperties.getProperty("label.puzzle")+": " + (i + 1) + ": " + puzzle.getPhrase().getPhrase());
             solParaRun.addBreak();
-            solParaRun.setText("Book: " + puzzle.getPhrase().getBook());
+            solParaRun.setText(PuzzleProperties.getProperty("label.book")+": " + puzzle.getPhrase().getBook());
             solParaRun.addBreak();
-            solParaRun.setText("Author: " + puzzle.getPhrase().getAuthor());
+            solParaRun.setText(PuzzleProperties.getProperty("label.author")+": "+ puzzle.getPhrase().getAuthor());
             solParaRun.addBreak();
-            solParaRun.setText("Words:");
+            solParaRun.setText(PuzzleProperties.getProperty("label.words")+": ");
             solParaRun.addBreak();
             int wordNum = 1;
             for (Word word : puzzle.getWords()) {

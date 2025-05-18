@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.tools.PuzzleProperties;
 
 public class AcrosticPuzzleFileWriter {
 
@@ -31,25 +32,31 @@ public class AcrosticPuzzleFileWriter {
 
     public void generateClueFile(String outputDir, String fileName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Clues\n\n");
+        sb.append(PuzzleProperties.getProperty("label.clues"));
+        sb.append("\n\n");
         int i = 1;
         for (Word word : puzzle.getWords()) {
             sb.append(i++).append(". ").append(word.getDefinition()).append("\n");
         }
         sb.append("\n");
-        sb.append("Letters:\n\n");
-        sb.append(getSortedLetters());
+        sb.append(PuzzleProperties.getProperty("label.characters"));
+        sb.append("\n\n");
+        sb.append(getSortedCharacters());
 
         writeToFile(sb.toString(), outputDir, fileName);
     }
 
     public void generateSolutionFile(String outputDir, String fileName) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Solution\n\n");
-        sb.append("Phrase: ").append(puzzle.getPhrase().getPhrase()).append("\n");
-        sb.append("Book: ").append(puzzle.getPhrase().getBook()).append("\n");
-        sb.append("Author: ").append(puzzle.getPhrase().getAuthor()).append("\n\n");
-        sb.append("Words:\n");
+        sb.append(PuzzleProperties.getProperty("label.solution"));
+        sb.append("\n\n");
+        sb.append(PuzzleProperties.getProperty("label.phrase"));
+        sb.append(" ").append(puzzle.getPhrase().getPhrase()).append("\n");        
+        sb.append(PuzzleProperties.getProperty("label.source"));
+        sb.append(": ").append(puzzle.getPhrase().getBook()).append("\n");
+        sb.append(PuzzleProperties.getProperty("label.author"));
+        sb.append(" ").append(puzzle.getPhrase().getAuthor()).append("\n\n");
+        sb.append(PuzzleProperties.getProperty("label.words")).append("\n");
         int i = 1;
         for (Word word : puzzle.getWords()) {
             sb.append(i++).append(". ").append(word.getWord()).append("\n");
@@ -59,7 +66,7 @@ public class AcrosticPuzzleFileWriter {
         writeToFile(sb.toString(), outputDir, fileName);
     }
 
-    public String getSortedLetters() {
+    public String getSortedCharacters() {
         StringBuilder sb = new StringBuilder();
         puzzle.getWords().stream()
             .flatMap(word -> word.getWord().chars().mapToObj(c -> (char) c))
