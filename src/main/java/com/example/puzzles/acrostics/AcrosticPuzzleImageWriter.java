@@ -17,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 
 public class AcrosticPuzzleImageWriter {
 
+    private static final int GRID_SIZE = 40;
+
     private Puzzle puzzle;
 
     private int gridHeight;
@@ -36,7 +38,7 @@ public class AcrosticPuzzleImageWriter {
 
     private void setSizes(Puzzle aPuzzle) {
         gridHeight = puzzle.getPhrase().getChunks().getFirst().length() + 1;
-        cellSize = 50;
+        cellSize = GRID_SIZE;
 
         int wordNum = 0;
         for (Word word : aPuzzle.getWords()) {
@@ -58,7 +60,7 @@ public class AcrosticPuzzleImageWriter {
 
     private void drawSquare(Graphics2D g2d, int x, int y, int cellSize, boolean isIntersecting) {
         if (isIntersecting) {
-            g2d.setColor(new Color(240, 240, 240)); // Grey background for intersection
+            g2d.setColor(Color.LIGHT_GRAY); // Grey background for intersection
         } else {
             g2d.setColor(Color.WHITE); // White background for non-intersecting letters
         }

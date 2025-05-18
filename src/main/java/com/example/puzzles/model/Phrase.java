@@ -56,6 +56,7 @@ public class Phrase {
                      .replaceAll("”", "")
                      .replaceAll("\\.", "")
                      .replaceAll("…", "")
+                     .replaceAll("“", "")
                      .toLowerCase();
     }
 
