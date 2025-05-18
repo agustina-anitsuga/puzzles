@@ -108,7 +108,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         XWPFParagraph solTitle = doc.createParagraph();
         solTitle.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun solRun = solTitle.createRun();
-        solRun.setText("Solutions");
+        solRun.setText(PuzzleProperties.getProperty("label.solutions"));
         solRun.setBold(true);
         solRun.setFontSize(24);
         solRun.addBreak();
@@ -119,7 +119,7 @@ public class AcrosticPuzzleBookDocumentWriter {
             XWPFRun solParaRun = solPara.createRun();
             solParaRun.setText(PuzzleProperties.getProperty("label.puzzle")+": " + (i + 1) + ": " + puzzle.getPhrase().getPhrase());
             solParaRun.addBreak();
-            solParaRun.setText(PuzzleProperties.getProperty("label.book")+": " + puzzle.getPhrase().getBook());
+            solParaRun.setText(PuzzleProperties.getProperty("label.book")+": " + puzzle.getPhrase().getSource());
             solParaRun.addBreak();
             solParaRun.setText(PuzzleProperties.getProperty("label.author")+": "+ puzzle.getPhrase().getAuthor());
             solParaRun.addBreak();

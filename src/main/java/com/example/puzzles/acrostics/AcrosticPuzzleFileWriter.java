@@ -53,7 +53,7 @@ public class AcrosticPuzzleFileWriter {
         sb.append(PuzzleProperties.getProperty("label.phrase"));
         sb.append(" ").append(puzzle.getPhrase().getPhrase()).append("\n");        
         sb.append(PuzzleProperties.getProperty("label.source"));
-        sb.append(": ").append(puzzle.getPhrase().getBook()).append("\n");
+        sb.append(": ").append(puzzle.getPhrase().getSource()).append("\n");
         sb.append(PuzzleProperties.getProperty("label.author"));
         sb.append(" ").append(puzzle.getPhrase().getAuthor()).append("\n\n");
         sb.append(PuzzleProperties.getProperty("label.words")).append("\n");

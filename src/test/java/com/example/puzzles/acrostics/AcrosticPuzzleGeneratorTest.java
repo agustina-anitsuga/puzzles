@@ -25,7 +25,7 @@ public class AcrosticPuzzleGeneratorTest {
         Phrase phrase = phraseReader.getRandomPhrase(PuzzleProperties.getProperty("phrases.file.path"));
 
         assertNotNull(phrase, "Random phrase should not be null");
-        assertNotNull(phrase.getBook(), "Book name should not be null");
+        assertNotNull(phrase.getSource(), "Book name should not be null");
         assertNotNull(phrase.getAuthor(), "Author name should not be null");
     }
 

@@ -7,15 +7,15 @@ public class Phrase {
     private int id;
     private String phrase;
     private List<String> chunks;
-    private String book;
+    private String source;
     private String author;
     private int distanceBetweenChunks = 2;
 
-    public Phrase(int id, String phrase, String book, String author) {
+    public Phrase(int id, String phrase, String source, String author) {
         this.id = id;
         this.phrase = phrase;
         this.chunks = chunks(phrase);
-        this.book = book;
+        this.source = source;
         this.author = author;
     }
 
@@ -59,8 +59,8 @@ public class Phrase {
                      .toLowerCase();
     }
 
-    public String getBook() {
-        return book;
+    public String getSource() {
+        return source;
     }
 
     public String getAuthor() {
@@ -84,7 +84,7 @@ public class Phrase {
         return "Phrase{" +
                 "id=" + id +
                 ", phrase='" + phrase + '\'' +
-                ", book='" + book + '\'' +
+                ", book='" + source + '\'' +
                 ", author='" + author + '\'' +
                 '}';
     }
