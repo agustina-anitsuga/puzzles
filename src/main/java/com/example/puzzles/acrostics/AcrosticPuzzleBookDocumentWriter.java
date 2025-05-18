@@ -15,7 +15,15 @@ import java.util.List;
 public class AcrosticPuzzleBookDocumentWriter {
     
     public XWPFDocument createDocument(List<Puzzle> puzzles, List<String> imagePaths) throws Exception {
-        XWPFDocument doc = new XWPFDocument();
+        XWPFDocument doc = new XWPFDocument();        
+        setPageFormat(doc);
+        addTitlePage(doc);
+        addPuzzlePages(doc, puzzles, imagePaths);
+        addSolutionsSection(doc, puzzles);
+        return doc;
+    }
+
+    private void setPageFormat(XWPFDocument doc) {
         // Set page size to 8.5 x 11 inches (US Letter)
         CTBody body = doc.getDocument().getBody();
         if (body.isSetSectPr()) {
@@ -34,10 +42,6 @@ public class AcrosticPuzzleBookDocumentWriter {
             pageSz.setW(BigInteger.valueOf(12240));
             pageSz.setH(BigInteger.valueOf(15840));
         }
-        addTitlePage(doc);
-        addPuzzlePages(doc, puzzles, imagePaths);
-        addSolutionsSection(doc, puzzles);
-        return doc;
     }
 
     private void addTitlePage(XWPFDocument doc) {
@@ -75,10 +79,11 @@ public class AcrosticPuzzleBookDocumentWriter {
         }
 
         // Clues
-        XWPFParagraph cluesPara = doc.createParagraph();
-        XWPFRun cluesRun = cluesPara.createRun();
+        XWPFParagraph cluesParagraph = doc.createParagraph();
+        XWPFRun cluesRun = cluesParagraph.createRun();
         cluesRun.setText(PuzzleProperties.getProperty("label.clues")+": ");
-        cluesRun.setBold(true);
+        cluesRun.setBold(false);
+        cluesRun.setFontSize(12);
         cluesRun.addBreak();
         int clueNum = 1;
         for (Word word : puzzle.getWords()) {
