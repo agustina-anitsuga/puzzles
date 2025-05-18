@@ -6,6 +6,7 @@ import com.example.puzzles.model.Word;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,9 +22,11 @@ public class AcrosticPuzzleBookDocumentWriterTest {
         Phrase phrase = new Phrase(1, "abc", "Book", "Author");
         Puzzle puzzle = new Puzzle(java.time.LocalDateTime.now(), phrase, words);
         List<Puzzle> puzzles = List.of(puzzle);
-        List<String> imagePaths = List.of("output/images/puzzle-1.png");
+        File file = File.createTempFile("output/puzzle-1", ".png");
+        List<String> imagePaths = List.of(file.getAbsolutePath());
         AcrosticPuzzleBookDocumentWriter writer = new AcrosticPuzzleBookDocumentWriter();
         XWPFDocument doc = writer.createDocument(puzzles, imagePaths);
         assertNotNull(doc, "Document should not be null");
+        file.delete();
     }
 }

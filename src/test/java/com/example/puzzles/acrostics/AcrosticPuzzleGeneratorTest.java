@@ -4,6 +4,7 @@ import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PhraseReader;
+import com.example.puzzles.tools.PuzzleProperties;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ public class AcrosticPuzzleGeneratorTest {
     @Test
     public void testGetRandomPhrase() {
         PhraseReader phraseReader = new PhraseReader();
-        Phrase phrase = phraseReader.getRandomPhrase("phrases/Iconic_Book_Quotes.xlsx");
+        Phrase phrase = phraseReader.getRandomPhrase(PuzzleProperties.getProperty("phrases.file.path"));
 
         assertNotNull(phrase, "Random phrase should not be null");
         assertNotNull(phrase.getBook(), "Book name should not be null");
