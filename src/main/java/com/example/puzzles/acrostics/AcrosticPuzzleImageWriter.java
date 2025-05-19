@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 public class AcrosticPuzzleImageWriter {
 
-    private static final int GRID_SIZE = 40;
+    private static final int GRID_SIZE = 30;
 
     private Puzzle puzzle;
 
@@ -60,7 +60,7 @@ public class AcrosticPuzzleImageWriter {
 
     private void drawSquare(Graphics2D g2d, int x, int y, int cellSize, boolean isIntersecting) {
         if (isIntersecting) {
-            g2d.setColor(Color.LIGHT_GRAY); // Grey background for intersection
+            g2d.setColor(new Color(240,240,240)); // Grey background for intersection
         } else {
             g2d.setColor(Color.WHITE); // White background for non-intersecting letters
         }
@@ -71,9 +71,10 @@ public class AcrosticPuzzleImageWriter {
 
     private void drawLetter(Graphics2D g2d, String letter, int x, int y, int cellSize) {
         g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("Arial", Font.PLAIN, (int)(cellSize * 0.75) ));
         FontMetrics metrics = g2d.getFontMetrics();
-        int textX = x + (cellSize - metrics.stringWidth(String.valueOf(letter))) / 2;
-        int textY = y + ((cellSize - metrics.getHeight()) / 2) + metrics.getAscent();
+        int textX = x + (cellSize - metrics.stringWidth(String.valueOf(letter))) / 3;
+        int textY = y + ((cellSize - metrics.getHeight()) / 3) + metrics.getAscent();
         g2d.drawString(String.valueOf(letter), textX, textY);
     }
 
