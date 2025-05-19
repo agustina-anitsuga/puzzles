@@ -40,14 +40,18 @@ public class AcrosticPuzzleGenerator {
         logger.info("Random Phrase: " + phrase);
 
         Puzzle puzzle = buildPuzzle(phrase);
+        String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
 
         AcrosticPuzzleFileWriter puzzleFileWriter = new AcrosticPuzzleFileWriter(puzzle);
-        puzzleFileWriter.generateClueFile(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+"-clue.txt");
-        puzzleFileWriter.generateSolutionFile(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.txt");
+        puzzleFileWriter.generateClueFile(outputDir, puzzle.getName()+"-clue.txt");
+        puzzleFileWriter.generateSolutionFile(outputDir, puzzle.getName()+"-sol.txt");
 
         AcrosticPuzzleImageWriter puzzleImageWriter = new AcrosticPuzzleImageWriter(puzzle);
-        puzzleImageWriter.generate(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+"-sol.png", true);
-        puzzleImageWriter.generate(PuzzleProperties.getProperty("puzzles.output.dir"), puzzle.getName()+".png", false);
+        puzzleImageWriter.generate(outputDir, puzzle.getName()+"-sol.png", true);
+        puzzleImageWriter.generate(outputDir, puzzle.getName()+".png", false);
+
+        AcrosticCharacterCluesImageWriter characterClueImageWriter = new AcrosticCharacterCluesImageWriter(puzzle);
+        characterClueImageWriter.generate(outputDir, puzzle.getName()+"-character-clue.png");
     }
 
     public Puzzle buildPuzzle(Phrase phrase) {

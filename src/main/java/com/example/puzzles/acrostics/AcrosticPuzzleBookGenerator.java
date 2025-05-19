@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class AcrosticPuzzleBookGenerator {
 
-    private static final int PUZZLE_COUNT = 1;
+    private static final int PUZZLE_COUNT = 2;
     private static final int MIN_PHRASE_LENGTH = 15;
     private static final int MAX_PHRASE_LENGTH = 60;
 
@@ -28,8 +28,24 @@ public class AcrosticPuzzleBookGenerator {
         List<Phrase> selectedPhrases = selectPhrases();
         List<Puzzle> puzzles = generatePuzzles(selectedPhrases);
         List<String> imagePaths = generatePuzzleImages(puzzles);
-        XWPFDocument doc = new AcrosticPuzzleBookDocumentWriter().createDocument(puzzles, imagePaths);
+        List<String> clueImagePaths = generatePuzzleCluesImages(puzzles);
+        XWPFDocument doc = new AcrosticPuzzleBookDocumentWriter().createDocument(puzzles, imagePaths, clueImagePaths);
         saveDocument(doc);
+    }
+
+    private List<String> generatePuzzleCluesImages(List<Puzzle> puzzles) {
+        String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
+        File imageDir = new File(outputDir);
+        imageDir.mkdirs();
+        List<String> imagePaths = new ArrayList<>();
+        for (int i = 0; i < puzzles.size(); i++) {
+            Puzzle puzzle = puzzles.get(i);
+            String imageName = "puzzle-" + (i + 1) + "-character-clues.png";
+            String imagePath = new File(imageDir, imageName).getAbsolutePath();
+            new AcrosticCharacterCluesImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName);
+            imagePaths.add(imagePath);
+        }
+        return imagePaths;
     }
 
     private List<Phrase> selectPhrases() throws IOException {
