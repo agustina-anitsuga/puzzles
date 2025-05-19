@@ -12,9 +12,11 @@ import java.util.ArrayList;
 
 public class AcrosticCharacterCluesImageWriter {
 
+    private static final int GRID_WIDTH = 30;
+    
     private final Puzzle puzzle;
-    private final int cellSize = 20;
-    private final int padding = 3;
+    private final int cellSize = 15;
+    private final int padding = 2;
     private final int fontSize = 10;
 
     public AcrosticCharacterCluesImageWriter(Puzzle puzzle) {
@@ -23,9 +25,10 @@ public class AcrosticCharacterCluesImageWriter {
 
     public void generate(String outputDir, String fileName) {
         List<Character> chars = getSortedCharacters();
-        int gridSize = (int) Math.ceil(Math.sqrt(chars.size()));
-        int width = gridSize * cellSize + 2 * padding;
-        int height = gridSize * cellSize + 2 * padding;
+        int gridWidth = (int) GRID_WIDTH;
+        int gridHeight = (int) Math.ceil((double) chars.size() / gridWidth);
+        int width = gridWidth * cellSize + 2 * padding;
+        int height = gridHeight * cellSize + 2 * padding;
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = image.createGraphics();
@@ -37,8 +40,8 @@ public class AcrosticCharacterCluesImageWriter {
         g2d.setFont(new Font("Arial", Font.PLAIN, fontSize));
 
         for (int i = 0; i < chars.size(); i++) {
-            int row = i / gridSize;
-            int col = i % gridSize;
+            int row = i / gridWidth;
+            int col = i % gridWidth;
             int x = padding + col * cellSize;
             int y = padding + row * cellSize;
             // Draw cell border

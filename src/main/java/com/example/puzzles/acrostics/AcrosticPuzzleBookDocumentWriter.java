@@ -123,7 +123,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         // Write the label in a different font and size
         XWPFParagraph labelParagraph = doc.createParagraph();
         XWPFRun labelRun = labelParagraph.createRun();
-        labelRun.setText(PuzzleProperties.getProperty("label.clues") + ":");
+        labelRun.setText(""+PuzzleProperties.getProperty("label.clues") + ":");
         labelRun.setFontFamily(FONT_FAMILY);
         labelRun.setFontSize(PAGE_TITLE_FONT_SIZE);
         labelRun.setBold(true);
@@ -132,7 +132,6 @@ public class AcrosticPuzzleBookDocumentWriter {
         // Now write the clues in a different font, one per line
         XWPFParagraph cluesParagraph = doc.createParagraph();
         XWPFRun cluesRun = cluesParagraph.createRun();
-        cluesRun.addBreak(); // extra blank line between title and clues
         cluesRun.setFontFamily(FONT_FAMILY);
         cluesRun.setFontSize(NORMAL_TEXT_FONT_SIZE);
         int clueNum = 1;
@@ -152,12 +151,12 @@ public class AcrosticPuzzleBookDocumentWriter {
             int widthInPixels = bimg.getWidth();
             int heightInPixels = bimg.getHeight();
             int DPI = 96;
-            int widthInInches = bimg.getWidth() / DPI;
+            int widthInInches = widthInPixels / DPI;
             int widthInEmu = Units.toEMU(widthInPixels);
             int heightInEmu = Units.toEMU(heightInPixels);
-            double maxWidthInInches = 4.5;
+            double maxWidthInInches = 4;
             if (widthInInches > maxWidthInInches) {
-                double scale = (double) 7 / widthInInches;
+                double scale = (double) maxWidthInInches / widthInInches;
                 widthInEmu = Units.toEMU(widthInPixels * scale);
                 heightInEmu = Units.toEMU(heightInPixels * scale);
             }
@@ -165,7 +164,6 @@ public class AcrosticPuzzleBookDocumentWriter {
             imgPara.setAlignment(ParagraphAlignment.LEFT);
             XWPFRun imgRun = imgPara.createRun();
             imgRun.addPicture(is, Document.PICTURE_TYPE_PNG, imagePath, widthInEmu, heightInEmu);
-            imgRun.addBreak(BreakType.PAGE);
         }
     }
 

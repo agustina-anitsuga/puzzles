@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 public class AcrosticPuzzleImageWriter {
 
-    private static final int GRID_SIZE = 30;
+    private static final int GRID_SIZE = 20;
 
     private Puzzle puzzle;
 
