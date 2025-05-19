@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 public class AcrosticPuzzleBookGenerator {
 
-    private static final int PUZZLE_COUNT = 2;
+    private static final int PUZZLE_COUNT = 50;
     private static final int MIN_PHRASE_LENGTH = 15;
-    private static final int MAX_PHRASE_LENGTH = 60;
+    private static final int MAX_PHRASE_LENGTH = 50;
 
     public static void main(String[] args) throws Exception {
         new AcrosticPuzzleBookGenerator().generateBook();
