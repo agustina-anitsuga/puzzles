@@ -4,6 +4,7 @@ import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PuzzleProperties;
 
+import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.Units;
@@ -29,6 +30,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         addTitlePage(doc);
         addPuzzlePages(doc, puzzles, imagePaths, clueImagePaths);
         addSolutionsSection(doc, puzzles);
+        addPageNumbers(doc); // Add page numbers in the footer
         return doc;
     }
 
@@ -222,6 +224,30 @@ public class AcrosticPuzzleBookDocumentWriter {
             }
             solParaRun.addBreak(); // blank line between solutions
         }
+    }
+
+    private void addPageNumbers(XWPFDocument doc) {
+        XWPFHeaderFooterPolicy footerPolicy = doc.createHeaderFooterPolicy();
+        XWPFFooter footer = footerPolicy.createFooter(XWPFHeaderFooterPolicy.DEFAULT);
+        XWPFParagraph para = footer.createParagraph();
+        para.setAlignment(ParagraphAlignment.CENTER);
+        XWPFRun run = para.createRun();
+        run.setFontFamily(FONT_FAMILY);
+        run.setFontSize(10);
+        run.setText("Page ");
+        run.getCTR().addNewFldChar().setFldCharType(org.openxmlformats.schemas.wordprocessingml.x2006.main.STFldCharType.BEGIN);
+        XWPFRun pageNumRun = para.createRun();
+        pageNumRun.getCTR().addNewInstrText().setStringValue("PAGE");
+        XWPFRun endRun = para.createRun();
+        endRun.getCTR().addNewFldChar().setFldCharType(org.openxmlformats.schemas.wordprocessingml.x2006.main.STFldCharType.END);
+
+        // Set different first page for the section so the footer (page number) starts on page 2
+        CTSectPr sectPr = doc.getDocument().getBody().getSectPr();
+        if (sectPr == null) {
+            sectPr = doc.getDocument().getBody().addNewSectPr();
+        }
+        CTPageMar pageMar = sectPr.isSetPgMar() ? sectPr.getPgMar() : sectPr.addNewPgMar();
+        sectPr.addNewTitlePg(); // This enables 'Different First Page'
     }
 
 }
