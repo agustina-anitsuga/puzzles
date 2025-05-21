@@ -21,4 +21,9 @@ public class PuzzleProperties {
     public static String getProperty(String key) {
         return properties.getProperty(key);
     }
+
+    public static int getIntProperty(String key) {
+        return properties.getProperty(key) != null ? Integer.parseInt(properties.getProperty(key)) : 0;
+    }
+
 }

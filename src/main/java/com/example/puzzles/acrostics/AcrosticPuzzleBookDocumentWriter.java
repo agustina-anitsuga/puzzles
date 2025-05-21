@@ -89,12 +89,12 @@ public class AcrosticPuzzleBookDocumentWriter {
         titleRun.addBreak();
 
         // Add a description below the title
-        XWPFParagraph descPara = doc.createParagraph();
-        XWPFRun descRun = descPara.createRun();
-        descRun.setText("These are the characters used in the words of the acrostic puzzle.");
-        descRun.setFontFamily(FONT_FAMILY);
-        descRun.setFontSize(NORMAL_TEXT_FONT_SIZE);
-        descRun.addBreak();
+        //XWPFParagraph descPara = doc.createParagraph();
+        //XWPFRun descRun = descPara.createRun();
+        //descRun.setText("These are the characters used in the words of the acrostic puzzle.");
+        //descRun.setFontFamily(FONT_FAMILY);
+        //descRun.setFontSize(NORMAL_TEXT_FONT_SIZE);
+        //descRun.addBreak();
 
         try (FileInputStream is = new FileInputStream(cluesImagePath)) {
             javax.imageio.ImageIO.setUseCache(false);
@@ -152,14 +152,23 @@ public class AcrosticPuzzleBookDocumentWriter {
             int heightInPixels = bimg.getHeight();
             int DPI = 96;
             int widthInInches = widthInPixels / DPI;
+            int heightInInches = heightInPixels / DPI;
             int widthInEmu = Units.toEMU(widthInPixels);
             int heightInEmu = Units.toEMU(heightInPixels);
             double maxWidthInInches = 4;
+            double maxHeightInInches = 6;
+            double scaleWidth = 1;
+            double scaleHeight = 1;
             if (widthInInches > maxWidthInInches) {
-                double scale = (double) maxWidthInInches / widthInInches;
-                widthInEmu = Units.toEMU(widthInPixels * scale);
-                heightInEmu = Units.toEMU(heightInPixels * scale);
+                scaleWidth = (double) maxWidthInInches / widthInInches;
+                
             }
+            if(heightInInches > maxHeightInInches){
+                scaleHeight = (double) maxHeightInInches / heightInInches;
+            }
+            double scale = Math.min(scaleWidth, scaleHeight);
+            widthInEmu = Units.toEMU(widthInPixels * scale);
+            heightInEmu = Units.toEMU(heightInPixels * scale);
             XWPFParagraph imgPara = doc.createParagraph();
             imgPara.setAlignment(ParagraphAlignment.LEFT);
             XWPFRun imgRun = imgPara.createRun();

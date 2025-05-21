@@ -16,9 +16,10 @@ import java.util.stream.Collectors;
 
 public class AcrosticPuzzleBookGenerator {
 
-    private static final int PUZZLE_COUNT = 50;
-    private static final int MIN_PHRASE_LENGTH = 15;
-    private static final int MAX_PHRASE_LENGTH = 50;
+    private static final int PUZZLE_COUNT = PuzzleProperties.getIntProperty("acrostic.book.puzzle.phrase.count");
+    private static final int MIN_PHRASE_LENGTH = PuzzleProperties.getIntProperty("acrostic.book.puzzle.phrase.length.min");
+    private static final int MAX_PHRASE_LENGTH = PuzzleProperties.getIntProperty("acrostic.book.puzzle.phrase.length.max");
+    private static final int PHRASE_LONG_CAP = PuzzleProperties.getIntProperty("acrostic.book.puzzle.phrase.long");
 
     public static void main(String[] args) throws Exception {
         new AcrosticPuzzleBookGenerator().generateBook();
@@ -59,6 +60,7 @@ public class AcrosticPuzzleBookGenerator {
         }
         return allPhrases.stream()
             .filter(p -> p.getCharactersInPhrase().length() >= MIN_PHRASE_LENGTH && p.getCharactersInPhrase().length() <= MAX_PHRASE_LENGTH)
+            .peek(p -> p.setLongCap(PHRASE_LONG_CAP))
             .distinct()
             .limit(PUZZLE_COUNT)
             .collect(Collectors.toList());

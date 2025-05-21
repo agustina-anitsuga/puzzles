@@ -10,6 +10,7 @@ public class Phrase {
     private String source;
     private String author;
     private int distanceBetweenChunks = 2;
+    private int longCap = 25;
 
     public Phrase(int id, String phrase, String source, String author) {
         this.id = id;
@@ -17,6 +18,15 @@ public class Phrase {
         this.chunks = chunks(phrase);
         this.source = source;
         this.author = author;
+    }
+
+    public Phrase(int id, String phrase, String source, String author, int longCap) {
+        this(id, phrase, source, author);
+        this.longCap = longCap;
+    }
+
+    public void setLongCap(int longCap) {
+        this.longCap = longCap;
     }
 
     public int getDistanceBetweenChunks() {
@@ -30,7 +40,7 @@ public class Phrase {
     private List<String> chunks(String aPhrase) {
         String charactersInPhrase = getCharactersIn(aPhrase);
         List<String> chunks = List.of(charactersInPhrase);
-        if( charactersInPhrase.length() > 30) {
+        if( charactersInPhrase.length() > longCap) {
             int divisor = (int) Math.ceil((charactersInPhrase.length()+1)/2);
             chunks = List.of(
                     charactersInPhrase.substring(0, divisor),
