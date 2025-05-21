@@ -246,7 +246,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         if (sectPr == null) {
             sectPr = doc.getDocument().getBody().addNewSectPr();
         }
-        CTPageMar pageMar = sectPr.isSetPgMar() ? sectPr.getPgMar() : sectPr.addNewPgMar();
+        //CTPageMar pageMar = sectPr.isSetPgMar() ? sectPr.getPgMar() : sectPr.addNewPgMar();
         sectPr.addNewTitlePg(); // This enables 'Different First Page'
     }
 
