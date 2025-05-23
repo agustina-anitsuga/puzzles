@@ -6,31 +6,30 @@ import com.example.puzzles.model.Coordinate;
 import com.example.puzzles.model.Direction;
 import com.example.puzzles.model.Position;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.model.WordSearchPuzzle;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class WordSearchPuzzleImageWriter {
 
-    private final char[][] grid;
-    private final int gridSize;
+    private WordSearchPuzzle puzzle;
+    private int gridSize ;
     private final int cellSize = 32;
     private final int padding = 20;
     private final String fontName = "Monospaced";
     private final boolean solution;
-    private final List<Word> words;
 
-    public WordSearchPuzzleImageWriter(char[][] grid, int gridSize, boolean solution, List<Word> words) {
-        this.grid = grid;
-        this.gridSize = gridSize;
+    public WordSearchPuzzleImageWriter(WordSearchPuzzle puzzle, boolean solution) {
+        this.puzzle = puzzle;
+        this.gridSize = puzzle.getGrid().length;
         this.solution = solution;
-        this.words = words;
     }
 
     public void writeToFile(String filePath) throws IOException {
+        char[][] grid = puzzle.getGrid();
         int imgSize = gridSize * cellSize + 2 * padding;
         BufferedImage image = new BufferedImage(imgSize, imgSize, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = image.createGraphics();
@@ -54,9 +53,9 @@ public class WordSearchPuzzleImageWriter {
         }
 
         // If solution, highlight the words
-        if (solution && words != null) {
+        if (solution && puzzle.getWords() != null) {
             g2d.setColor(new Color(255, 255, 0, 128)); // semi-transparent yellow
-            for (Word word : words) {
+            for (Word word : puzzle.getWords()) {
                 highlightWord(g2d,word);
             }
         }

@@ -1,7 +1,7 @@
 package com.example.puzzles.acrostics;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Phrase;
-import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ public class AcrosticPuzzleFileWriterTest {
             new Word(2, "love vinyl", "A material")
         );
         Phrase phrase = new Phrase(1, "hello", "book", "author");
-        Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, words);
+        AcrosticPuzzle puzzle = new AcrosticPuzzle(LocalDateTime.now(), phrase, words);
         AcrosticPuzzleFileWriter writer = new AcrosticPuzzleFileWriter(puzzle);
 
         // Act

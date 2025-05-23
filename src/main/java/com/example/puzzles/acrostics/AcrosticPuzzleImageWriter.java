@@ -8,8 +8,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Phrase;
-import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +19,7 @@ public class AcrosticPuzzleImageWriter {
 
     private static final int GRID_SIZE = 20;
 
-    private Puzzle puzzle;
+    private AcrosticPuzzle puzzle;
 
     private int gridHeight;
     private int gridWidth;
@@ -31,12 +31,12 @@ public class AcrosticPuzzleImageWriter {
 
     private static final Logger logger = LogManager.getLogger(AcrosticPuzzleImageWriter.class);
 
-    public AcrosticPuzzleImageWriter( Puzzle puzzle ){
+    public AcrosticPuzzleImageWriter( AcrosticPuzzle puzzle ){
         this.puzzle = puzzle;
         setSizes(puzzle);
     }
 
-    private void setSizes(Puzzle aPuzzle) {
+    private void setSizes(AcrosticPuzzle aPuzzle) {
         gridHeight = puzzle.getPhrase().getChunks().getFirst().length() + 1;
         cellSize = GRID_SIZE;
 

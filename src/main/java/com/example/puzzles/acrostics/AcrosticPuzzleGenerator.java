@@ -1,10 +1,10 @@
 package com.example.puzzles.acrostics;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PhraseReader;
 import com.example.puzzles.tools.WordReader;
-import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.tools.PuzzleProperties;
 
 import java.util.List;
@@ -36,10 +36,10 @@ public class AcrosticPuzzleGenerator {
         }
     }
 
-    private void buildPuzzleForPhrase(Phrase phrase) {
+    private AcrosticPuzzle buildPuzzleForPhrase(Phrase phrase) {
         logger.info("Random Phrase: " + phrase);
 
-        Puzzle puzzle = buildPuzzle(phrase);
+        AcrosticPuzzle puzzle = buildPuzzle(phrase);
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
 
         AcrosticPuzzleFileWriter puzzleFileWriter = new AcrosticPuzzleFileWriter(puzzle);
@@ -52,16 +52,18 @@ public class AcrosticPuzzleGenerator {
 
         AcrosticCharacterCluesImageWriter characterClueImageWriter = new AcrosticCharacterCluesImageWriter(puzzle);
         characterClueImageWriter.generate(outputDir, puzzle.getName()+"-character-clue.png");
+
+        return puzzle;
     }
 
-    public Puzzle buildPuzzle(Phrase phrase) {
-        List<Word> selectedWords = getSelectedWords(phrase);
-        Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, selectedWords);
+    public AcrosticPuzzle buildPuzzle(Phrase phrase) {
+        List<Word> selectedWords = selectWords(phrase);
+        AcrosticPuzzle puzzle = new AcrosticPuzzle(LocalDateTime.now(), phrase, selectedWords);
         logger.info(puzzle.toString());
         return puzzle;
     }
 
-    private List<Word> getSelectedWords(Phrase phrase) {
+    private List<Word> selectWords(Phrase phrase) {
         WordReader wordReader = new WordReader(PuzzleProperties.getProperty("word.list.file.path"));
 
         List<Word> selectedWords = new ArrayList<>();

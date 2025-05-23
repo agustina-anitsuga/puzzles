@@ -1,7 +1,7 @@
 package com.example.puzzles.acrostics;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Phrase;
-import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ public class AcrosticPuzzleImageWriterTest {
             new Word(2, "banana", "Another fruit"),
             new Word(3, "cherry", "Yet another fruit")
         );
-        Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, words);
+        AcrosticPuzzle puzzle = new AcrosticPuzzle(LocalDateTime.now(), phrase, words);
         AcrosticPuzzleImageWriter writer = new AcrosticPuzzleImageWriter(puzzle);
         String outputDir = "src/test/resources/images";
         String fileName = "test-image.png";

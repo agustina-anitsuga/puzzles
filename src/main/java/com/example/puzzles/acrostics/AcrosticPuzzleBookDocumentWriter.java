@@ -1,5 +1,6 @@
 package com.example.puzzles.acrostics;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PuzzleProperties;
@@ -24,7 +25,7 @@ public class AcrosticPuzzleBookDocumentWriter {
     private static final int SECTION_TITLE_FONT_SIZE = 18;
     private static final int PAGE_TITLE_FONT_SIZE = 14;
 
-    public XWPFDocument createDocument(List<Puzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
+    public XWPFDocument createDocument(List<AcrosticPuzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
         XWPFDocument doc = new XWPFDocument();        
         setPageFormat(doc);
         addTitlePage(doc);
@@ -65,14 +66,14 @@ public class AcrosticPuzzleBookDocumentWriter {
         run.addBreak(BreakType.PAGE);
     }
 
-    private void addPuzzlePages(XWPFDocument doc, List<Puzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
+    private void addPuzzlePages(XWPFDocument doc, List<AcrosticPuzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
         for (int i = 0; i < puzzles.size(); i++) {
-            Puzzle puzzle = puzzles.get(i);
+            AcrosticPuzzle puzzle = puzzles.get(i);
             addPuzzlePage(doc, puzzle, imagePaths.get(i), clueImagePaths.get(i), i + 1);
         }
     }
 
-    private void addPuzzlePage(XWPFDocument doc, Puzzle puzzle, String imagePath, String clueImagePath, int puzzleNumber) throws Exception {
+    private void addPuzzlePage(XWPFDocument doc, AcrosticPuzzle puzzle, String imagePath, String clueImagePath, int puzzleNumber) throws Exception {
         addPuzzleTitle(doc, puzzle, puzzleNumber);
         addPuzzleImage(doc, imagePath);
         addClues(doc, puzzle);
@@ -178,7 +179,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         }
     }
 
-    private XWPFParagraph addPuzzleTitle(XWPFDocument doc, Puzzle puzzle, int puzzleNumber) {
+    private XWPFParagraph addPuzzleTitle(XWPFDocument doc, AcrosticPuzzle puzzle, int puzzleNumber) {
         XWPFParagraph pTitle = doc.createParagraph();
         pTitle.setAlignment(ParagraphAlignment.LEFT);
         XWPFRun pRun = pTitle.createRun();
@@ -198,7 +199,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         return pDesc;
     }
 
-    private void addSolutionsSection(XWPFDocument doc, List<Puzzle> puzzles) {
+    private void addSolutionsSection(XWPFDocument doc, List<AcrosticPuzzle> puzzles) {
         XWPFParagraph solTitle = doc.createParagraph();
         solTitle.setAlignment(ParagraphAlignment.LEFT);
         XWPFRun solRun = solTitle.createRun();
@@ -208,7 +209,7 @@ public class AcrosticPuzzleBookDocumentWriter {
         solRun.addBreak();
 
         for (int i = 0; i < puzzles.size(); i++) {
-            Puzzle puzzle = puzzles.get(i);
+            AcrosticPuzzle puzzle = puzzles.get(i);
             XWPFParagraph solPara = doc.createParagraph();
             XWPFRun solParaRun = solPara.createRun();
             solParaRun.setText(PuzzleProperties.getProperty("label.puzzle")+" " + (i + 1) + ": " + puzzle.getPhrase().getPhrase());

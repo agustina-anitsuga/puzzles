@@ -1,5 +1,6 @@
 package com.example.puzzles.acrostics;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.tools.PhraseReader;
@@ -27,14 +28,14 @@ public class AcrosticPuzzleBookGenerator {
 
     public void generateBook() throws Exception {
         List<Phrase> selectedPhrases = selectPhrases();
-        List<Puzzle> puzzles = generatePuzzles(selectedPhrases);
+        List<AcrosticPuzzle> puzzles = generatePuzzles(selectedPhrases);
         List<String> imagePaths = generatePuzzleImages(puzzles);
         List<String> clueImagePaths = generatePuzzleCluesImages(puzzles);
         XWPFDocument doc = new AcrosticPuzzleBookDocumentWriter().createDocument(puzzles, imagePaths, clueImagePaths);
         saveDocument(doc);
     }
 
-    private List<String> generatePuzzleCluesImages(List<Puzzle> puzzles) {
+    private List<String> generatePuzzleCluesImages(List<AcrosticPuzzle> puzzles) {
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
         File imageDir = new File(outputDir);
         imageDir.mkdirs();
@@ -66,22 +67,22 @@ public class AcrosticPuzzleBookGenerator {
             .collect(Collectors.toList());
     }
 
-    private List<Puzzle> generatePuzzles(List<Phrase> phrases) {
+    private List<AcrosticPuzzle> generatePuzzles(List<Phrase> phrases) {
         AcrosticPuzzleGenerator generator = new AcrosticPuzzleGenerator();
-        List<Puzzle> puzzles = new ArrayList<>();
+        List<AcrosticPuzzle> puzzles = new ArrayList<>();
         for (Phrase phrase : phrases) {
             puzzles.add(generator.buildPuzzle(phrase));
         }
         return puzzles;
     }
 
-    private List<String> generatePuzzleImages(List<Puzzle> puzzles) {
+    private List<String> generatePuzzleImages(List<AcrosticPuzzle> puzzles) {
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
         File imageDir = new File(outputDir);
         imageDir.mkdirs();
         List<String> imagePaths = new ArrayList<>();
         for (int i = 0; i < puzzles.size(); i++) {
-            Puzzle puzzle = puzzles.get(i);
+            AcrosticPuzzle puzzle = puzzles.get(i);
             String imageName = "puzzle-" + (i + 1) + ".png";
             String imagePath = new File(imageDir, imageName).getAbsolutePath();
             new AcrosticPuzzleImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName, false);

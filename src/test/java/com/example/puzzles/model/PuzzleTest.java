@@ -11,7 +11,7 @@ public class PuzzleTest {
     public void testGetName() {
         Phrase phrase = new Phrase(1, "abc", "Book", "Author");
         List<Word> words = List.of(new Word(1, "apple", "A fruit"));
-        Puzzle puzzle = new Puzzle(LocalDateTime.of(2025, 5, 16, 12, 0, 0), phrase, words);
+        AcrosticPuzzle puzzle = new AcrosticPuzzle(LocalDateTime.of(2025, 5, 16, 12, 0, 0), phrase, words);
         assertTrue(puzzle.getName().startsWith("acrostic-puzzle-2025-05-16-12-00-00"));
     }
 
@@ -19,7 +19,7 @@ public class PuzzleTest {
     public void testToString() {
         Phrase phrase = new Phrase(1, "abc", "Book", "Author");
         List<Word> words = List.of(new Word(1, "apple", "A fruit"));
-        Puzzle puzzle = new Puzzle(LocalDateTime.now(), phrase, words);
+        AcrosticPuzzle puzzle = new AcrosticPuzzle(LocalDateTime.now(), phrase, words);
         String str = puzzle.toString();
         assertTrue(str.contains("Words:"));
         assertTrue(str.contains("apple"));

@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.example.puzzles.model.Puzzle;
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PuzzleProperties;
 
@@ -16,9 +16,9 @@ public class AcrosticPuzzleFileWriter {
 
     private static final Logger logger = LogManager.getLogger(AcrosticPuzzleFileWriter.class);
 
-    private Puzzle puzzle;
+    private AcrosticPuzzle puzzle;
 
-    public AcrosticPuzzleFileWriter( Puzzle puzzle ) {
+    public AcrosticPuzzleFileWriter( AcrosticPuzzle puzzle ) {
         this.puzzle = puzzle;
     }
 

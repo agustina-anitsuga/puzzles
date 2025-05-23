@@ -1,7 +1,7 @@
 package com.example.puzzles.acrostics;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Phrase;
-import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PhraseReader;
 import com.example.puzzles.tools.PuzzleProperties;
@@ -36,7 +36,7 @@ public class AcrosticPuzzleGeneratorTest {
         words.add(new Word(2, "banana", "Another fruit"));
         words.add(new Word(3, "cherry", "Yet another fruit"));
 
-        Puzzle puzzle = new Puzzle(
+        AcrosticPuzzle puzzle = new AcrosticPuzzle(
             LocalDateTime.now(),
             new Phrase(1,"abc","book","author"), 
             words);
