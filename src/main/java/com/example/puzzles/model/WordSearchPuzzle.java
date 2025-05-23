@@ -32,4 +32,12 @@ public class WordSearchPuzzle extends Puzzle {
         return "word-search-puzzle-";
     }
 
+    public List<String> getWordsAsStringList() {
+        List<String> result = new java.util.ArrayList<>();
+        for (Word w : getWords()) {
+            result.add(w.getWord());
+        }
+        return result;
+    }
+
 }
