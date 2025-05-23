@@ -5,7 +5,7 @@ public class Word {
     private int id;
     private String word;
     private String definition;
-    private int[] position;
+    private Position position;
 
     public Word() {
         this.id = 0;
@@ -19,7 +19,7 @@ public class Word {
         this.definition = definition;
     }
 
-    public Word(int id, String word, int[] position) {
+    public Word(int id, String word, Position position) {
         this.id = id;
         this.word = word;
         this.position = position;
@@ -35,6 +35,10 @@ public class Word {
 
     public String getDefinition() {
         return definition;
+    }
+
+    public Position getPosition() {
+        return position;
     }
 
     @Override

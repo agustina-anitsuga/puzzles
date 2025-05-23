@@ -11,6 +11,9 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.example.puzzles.model.Coordinate;
+import com.example.puzzles.model.Direction;
+import com.example.puzzles.model.Position;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PuzzleProperties;
 
@@ -49,7 +52,7 @@ public class WordSearchPuzzleGenerator {
         List<Word> placedWords = new ArrayList<>();
         int i=1;
         for (String word : words) {
-            int[] position = placeWord(word);
+            Position position = placeWord(word);
             placedWords.add(new Word(i++,word, position));
         }
         fillEmptySpaces();
@@ -75,28 +78,19 @@ public class WordSearchPuzzleGenerator {
         }
     }
 
-    private int[] placeWord(String word) throws Exception {
-        List<int[]> directions = new ArrayList<int[]>();
-        directions.add(new int[]{0, 1});   // right
-        directions.add(new int[]{1, 0});   // down
-        directions.add(new int[]{1, 1});   // down-right
-        directions.add(new int[]{-1, 1});  // up-right
-        directions.add(new int[]{0, -1});  // left
-        directions.add(new int[]{-1, 0});  // up
-        directions.add(new int[]{-1, -1}); // up-left
-        directions.add(new int[]{1, -1});  // down-left
-        
+    private Position placeWord(String word) throws Exception {
+        List<Direction> directions = new ArrayList<>();
+        Collections.addAll(directions, Direction.values());
         Collections.shuffle(directions, random);
         for (int attempt = 0; attempt < 100; attempt++) {
-            int dirIdx = random.nextInt(directions.size());
-            int[] dir = directions.get(dirIdx);
+            Direction dir = directions.get(random.nextInt(directions.size()));
             int row = random.nextInt(GRID_SIZE);
             int col = random.nextInt(GRID_SIZE);
-            if (canPlaceWord(word, row, col, dir[0], dir[1])) {
+            if (canPlaceWord(word, row, col, dir.dRow, dir.dCol)) {
                 for (int k = 0; k < word.length(); k++) {
-                    grid[row + k * dir[0]][col + k * dir[1]] = word.charAt(k);
+                    grid[row + k * dir.dRow][col + k * dir.dCol] = word.charAt(k);
                 }
-                return new int[]{row, col};
+                return new Position(new Coordinate(row,col), dir);
             }
         }
         throw new Exception( String.format("Could not place word in grid after 100 attempts: {}", word));
