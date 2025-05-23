@@ -5,6 +5,7 @@ public class Word {
     private int id;
     private String word;
     private String definition;
+    private int[] position;
 
     public Word() {
         this.id = 0;
@@ -16,6 +17,12 @@ public class Word {
         this.id = id;
         this.word = word;
         this.definition = definition;
+    }
+
+    public Word(int id, String word, int[] position) {
+        this.id = id;
+        this.word = word;
+        this.position = position;
     }
 
     public int getId() {
