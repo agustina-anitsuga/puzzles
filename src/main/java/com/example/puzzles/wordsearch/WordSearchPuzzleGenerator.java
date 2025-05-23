@@ -111,7 +111,7 @@ public class WordSearchPuzzleGenerator {
         throw new Exception( String.format("Could not place word in grid after 100 attempts: {}", word));
     }
 
-    private boolean canPlaceWord(String word, int row, int col, int dRow, int dCol) {
+    protected boolean canPlaceWord(String word, int row, int col, int dRow, int dCol) {
         int len = word.length();
         int endRow = row + (len - 1) * dRow;
         int endCol = col + (len - 1) * dCol;

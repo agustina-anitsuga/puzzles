@@ -1,97 +1,63 @@
 package com.example.puzzles.tools;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import com.example.puzzles.model.Word;
-
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
+/**
+ * Reads a text file containing multiple word lists separated by blank lines.
+ * Each list is used for a separate word search puzzle.
+ */
 public class WordReader {
+    private final List<List<String>> wordLists = new ArrayList<>();
 
-    private List<Word> words;
-
-    public WordReader ( ){
-    }
-
-    public WordReader (List<Word> words) {
-        this.words = words;
-    }
-
-    public WordReader ( String filePath ){
-        try {
-            words = this.readWordsFromExcel(filePath);
-        } catch (IOException e) {
-            System.err.println("Error reading words from Excel file: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    public List<Word> readWordsFromExcel(String filePath) throws IOException {
-        List<Word> twords = new ArrayList<>();
-
-        try (FileInputStream fis = new FileInputStream(new File(filePath));
-             Workbook workbook = new XSSFWorkbook(fis)) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            for (Row row : sheet) {
-                if (row.getRowNum() == 0) {
-                    // Skip header row
-                    continue;
-                }
-
-                int id = (int) row.getCell(0).getNumericCellValue();
-                String word = row.getCell(1).getStringCellValue();
-                String definition = row.getCell(2).getStringCellValue();
-
-                twords.add(new Word(id, word, definition));
-            }
-        }
-
-        return twords;
-    }
-
-    public Word getWordWith(char character) {
-        List<Word> matchingWords = new ArrayList<>();
-        
-        for (Word word : words) {
-            if ( (word.indexOf(character)) != -1) {
-                matchingWords.add(word);
-            }
-        }
-
-        if (matchingWords.isEmpty()) {
-            return null; // Return null if no word contains the character
-        }
-
-        Random random = new Random();
-        return matchingWords.get(random.nextInt(matchingWords.size()));
-    }
-
-    public Word getWordWith(char a, char b, int distance) {
-        List<Word> matchingWords = new ArrayList<>();
-        
-        for (Word word : words) {
-            int index = word.indexOf(a);
-            if (index == -1) {
-                continue; 
-            } else {
-                int newIndex = index + distance;
-                if( word.getWord().length()>newIndex && word.charAt(newIndex)==b){
-                    matchingWords.add(word);
+    /**
+     * Reads the file and splits it into lists of words, one per puzzle.
+     * @param filePath path to the text file
+     * @throws IOException if file cannot be read
+     */
+    public WordReader(String filePath) throws IOException {
+        try (BufferedReader br = new BufferedReader(new FileReader(new File(filePath)))) {
+            List<String> currentList = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty()) {
+                    if (!currentList.isEmpty()) {
+                        wordLists.add(new ArrayList<>(currentList));
+                        currentList.clear();
+                    }
+                } else {
+                    currentList.add(trimmed.toUpperCase());
                 }
             }
+            if (!currentList.isEmpty()) {
+                wordLists.add(currentList);
+            }
         }
+    }
 
-        if (matchingWords.isEmpty()) {
-            return null; // Return null if no word contains the characters
-        }
+    /**
+     * Returns the list of word lists (one per puzzle).
+     */
+    public List<List<String>> getWordLists() {
+        return wordLists;
+    }
 
-        Random random = new Random();
-        return matchingWords.get(random.nextInt(matchingWords.size()));
+    /**
+     * Returns the word list for the given puzzle index (0-based).
+     */
+    public List<String> getWordList(int index) {
+        return wordLists.get(index);
+    }
+
+    /**
+     * Returns the number of word lists (puzzles) in the file.
+     */
+    public int getPuzzleCount() {
+        return wordLists.size();
     }
 }

@@ -54,7 +54,7 @@ public class WordReaderTest {
 
     @Test
     public void testReadWordsFromExcel() {
-        WordReader wordReader = new WordReader();
+        DictionaryReader wordReader = new DictionaryReader();
         URL resource = getClass().getClassLoader().getResource("words/Test_Word_List.xlsx");
         assertNotNull(resource, "Test file not found: Test_Word_List.xlsx");
 
@@ -76,7 +76,7 @@ public class WordReaderTest {
             new Word(2, "banana", "Another fruit"),
             new Word(3, "cherry", "Yet another fruit")
         );
-        WordReader wordReader = new WordReader(words);
+        DictionaryReader wordReader = new DictionaryReader(words);
 
         Word word = wordReader.getWordWith('a');
         assertNotNull(word, "A word containing the character 'a' should be found");
@@ -93,7 +93,7 @@ public class WordReaderTest {
             new Word(2, "banana", "Another fruit"),
             new Word(3, "cherry", "Yet another fruit")
         );
-        WordReader wordReader = new WordReader(words);
+        DictionaryReader wordReader = new DictionaryReader(words);
 
         Word word = wordReader.getWordWith('a');
         assertNotNull(word, "A word containing the character 'a' should be found");

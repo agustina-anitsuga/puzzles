@@ -4,7 +4,7 @@ import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PhraseReader;
-import com.example.puzzles.tools.WordReader;
+import com.example.puzzles.tools.DictionaryReader;
 import com.example.puzzles.tools.PuzzleProperties;
 
 import java.util.List;
@@ -64,7 +64,7 @@ public class AcrosticPuzzleGenerator {
     }
 
     private List<Word> selectWords(Phrase phrase) {
-        WordReader wordReader = new WordReader(PuzzleProperties.getProperty("word.list.file.path"));
+        DictionaryReader wordReader = new DictionaryReader(PuzzleProperties.getProperty("word.list.file.path"));
 
         List<Word> selectedWords = new ArrayList<>();
 

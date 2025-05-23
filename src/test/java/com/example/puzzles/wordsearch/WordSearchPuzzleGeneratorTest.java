@@ -20,4 +20,21 @@ public class WordSearchPuzzleGeneratorTest {
         // Optionally, test that all words are present in the grid
         // generator.printGrid(placedWords); // This will also generate an image
     }
+
+    @Test
+    public void testReadWordsFromFile() throws Exception {
+        java.io.File temp = java.io.File.createTempFile("words", ".txt");
+        java.nio.file.Files.write(temp.toPath(), "ONE\nTWO\nTHREE\n".getBytes());
+        List<String> words = WordSearchPuzzleGenerator.readWordsFromFile(temp.getAbsolutePath());
+        assertEquals(3, words.size());
+        assertTrue(words.contains("ONE"));
+        temp.delete();
+    }
+
+    @Test
+    public void testCanPlaceWordRejectsOutOfBounds() {
+        WordSearchPuzzleGenerator generator = new WordSearchPuzzleGenerator(Arrays.asList("TOOLONG"), 5);
+        // Try to place a word that is too long for the grid
+        assertFalse(generator.canPlaceWord("TOOLONG", 0, 0, 1, 0));
+    }
 }
