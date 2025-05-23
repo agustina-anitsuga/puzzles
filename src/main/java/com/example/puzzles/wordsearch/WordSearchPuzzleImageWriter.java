@@ -2,6 +2,9 @@ package com.example.puzzles.wordsearch;
 
 import javax.imageio.ImageIO;
 
+import com.example.puzzles.model.Coordinate;
+import com.example.puzzles.model.Direction;
+import com.example.puzzles.model.Position;
 import com.example.puzzles.model.Word;
 
 import java.awt.*;
@@ -63,6 +66,17 @@ public class WordSearchPuzzleImageWriter {
 
     // Highlight the word in the grid
     private void highlightWord(Graphics2D g2d, Word word) {
-        
+        if (word == null || word.getPosition() == null) return;
+        Position pos = word.getPosition();
+        Coordinate coord = pos.getCoordinate();
+        Direction dir = pos.getDirection();
+        int row = coord.getRow();
+        int col = coord.getCol();
+        int len = word.getWord().length();
+        for (int k = 0; k < len; k++) {
+            int x = padding + (col + k * dir.dCol) * cellSize;
+            int y = padding + (row + k * dir.dRow) * cellSize;
+            g2d.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+        }
     }
 }
