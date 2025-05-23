@@ -20,15 +20,13 @@ public class WordSearchPuzzleImageWriter {
     private final int cellSize = 32;
     private final int padding = 20;
     private final String fontName = "Monospaced";
-    private final boolean solution;
 
-    public WordSearchPuzzleImageWriter(WordSearchPuzzle puzzle, boolean solution) {
+    public WordSearchPuzzleImageWriter(WordSearchPuzzle puzzle) {
         this.puzzle = puzzle;
         this.gridSize = puzzle.getGrid().length;
-        this.solution = solution;
     }
 
-    public void writeToFile(String filePath) throws IOException {
+    public void writeToFile(String filePath, boolean solution) throws IOException {
         char[][] grid = puzzle.getGrid();
         int imgSize = gridSize * cellSize + 2 * padding;
         BufferedImage image = new BufferedImage(imgSize, imgSize, BufferedImage.TYPE_INT_RGB);
@@ -54,11 +52,13 @@ public class WordSearchPuzzleImageWriter {
 
         // If solution, highlight the words
         if (solution && puzzle.getWords() != null) {
-            g2d.setColor(new Color(255, 255, 0, 128)); // semi-transparent yellow
+            g2d.setColor(new Color(200, 200, 200, 180)); // semi-transparent light grey for B&W printing
+            //g2d.setColor(new Color(240, 240, 240,128)); 
             for (Word word : puzzle.getWords()) {
                 highlightWord(g2d,word);
             }
         }
+        
         g2d.dispose();
         ImageIO.write(image, "png", new File(filePath));
     }

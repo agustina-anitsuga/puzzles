@@ -12,7 +12,7 @@ public class WordSearchPuzzleGeneratorTest {
     @Test
     public void testGenerateAndPrintGrid() throws Exception {
         List<String> words = Arrays.asList("JAVA", "CODE", "PUZZLE");
-        WordSearchPuzzleGenerator generator = new WordSearchPuzzleGenerator(words);
+        WordSearchPuzzleGenerator generator = new WordSearchPuzzleGenerator(words,25);
         Puzzle puzzle = generator.generate();
         assertNotNull(puzzle, "Puzzle should not be null");
         assertNotNull(puzzle.getWords(), "List of words should not be null");

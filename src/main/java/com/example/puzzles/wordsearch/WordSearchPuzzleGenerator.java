@@ -20,15 +20,18 @@ import com.example.puzzles.model.WordSearchPuzzle;
 import com.example.puzzles.tools.PuzzleProperties;
 
 public class WordSearchPuzzleGenerator {
+    
     private static final Logger logger = LogManager.getLogger(WordSearchPuzzleGenerator.class);
-    private static final int GRID_SIZE = 25;
-    private final char[][] grid;
-    private final List<String> words;
     private final Random random = new Random();
 
-    public WordSearchPuzzleGenerator(List<String> words) {
-        this.words = new ArrayList<>(words);
-        this.grid = new char[GRID_SIZE][GRID_SIZE];
+    private int gridSize;
+    private char grid[][];
+    private List<String> words;
+
+    public WordSearchPuzzleGenerator(List<String> words, int gridSize) {
+        this.words = words;
+        this.gridSize = gridSize;
+        this.grid = new char[gridSize][gridSize];
         fillGridWithBlanks();
     }
 
@@ -51,6 +54,16 @@ public class WordSearchPuzzleGenerator {
     }
 
     public WordSearchPuzzle generate() throws Exception {
+        List<Word> placedWords = buildGrid();
+        WordSearchPuzzle wsp = new WordSearchPuzzle(LocalDateTime.now(),grid,placedWords);
+
+        String filePath = PuzzleProperties.getProperty("puzzles.output.dir");
+        this.printGrid(filePath,wsp);
+
+        return wsp;
+    }
+
+    private List<Word> buildGrid() throws Exception {
         List<Word> placedWords = new ArrayList<>();
         int i=1;
         for (String word : words) {
@@ -59,20 +72,20 @@ public class WordSearchPuzzleGenerator {
         }
         fillEmptySpaces();
         logger.info("Word search puzzle generated with {} words.", words.size());
-        return new WordSearchPuzzle(LocalDateTime.now(),grid,placedWords);
+        return placedWords;
     }
 
     private void fillGridWithBlanks() {
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
                 grid[i][j] = '_';
             }
         }
     }
 
     private void fillEmptySpaces() {
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
                 if (grid[i][j] == '_') {
                     grid[i][j] = (char) ('A' + random.nextInt(26));
                 }
@@ -86,8 +99,8 @@ public class WordSearchPuzzleGenerator {
         Collections.shuffle(directions, random);
         for (int attempt = 0; attempt < 100; attempt++) {
             Direction dir = directions.get(random.nextInt(directions.size()));
-            int row = random.nextInt(GRID_SIZE);
-            int col = random.nextInt(GRID_SIZE);
+            int row = random.nextInt(gridSize);
+            int col = random.nextInt(gridSize);
             if (canPlaceWord(word, row, col, dir.dRow, dir.dCol)) {
                 for (int k = 0; k < word.length(); k++) {
                     grid[row + k * dir.dRow][col + k * dir.dCol] = word.charAt(k);
@@ -102,7 +115,7 @@ public class WordSearchPuzzleGenerator {
         int len = word.length();
         int endRow = row + (len - 1) * dRow;
         int endCol = col + (len - 1) * dCol;
-        if (endRow < 0 || endRow >= GRID_SIZE || endCol < 0 || endCol >= GRID_SIZE) {
+        if (endRow < 0 || endRow >= gridSize || endCol < 0 || endCol >= gridSize) {
             return false;
         }
         for (int k = 0; k < len; k++) {
@@ -117,7 +130,9 @@ public class WordSearchPuzzleGenerator {
     public void printGrid(String filePath, WordSearchPuzzle puzzle) {
         // Also write the grid as an image
         try {
-            new WordSearchPuzzleImageWriter(puzzle, true).writeToFile(filePath);
+            WordSearchPuzzleImageWriter writer = new WordSearchPuzzleImageWriter(puzzle);
+            writer.writeToFile(filePath+File.separator+puzzle.getName()+".png", false);
+            writer.writeToFile(filePath+File.separator+puzzle.getName()+"-sol.png", true);
             logger.info("Word search puzzle image written to {}", filePath);
         } catch (IOException e) {
             logger.error("Failed to write word search puzzle image", e);
@@ -127,11 +142,8 @@ public class WordSearchPuzzleGenerator {
     public static void main(String[] args) throws Exception {
         logger.info("Welcome to the Puzzle Generator!");
         List<String> words = readWordsFromFile(PuzzleProperties.getProperty("word-search.file.path"));
-        WordSearchPuzzleGenerator generator = new WordSearchPuzzleGenerator(words);
-        WordSearchPuzzle wordSearch = generator.generate();
-        String filePath = PuzzleProperties.getProperty("puzzles.output.dir") 
-                            + File.separator + "word-search.png";
-        generator.printGrid(filePath,wordSearch);
+        WordSearchPuzzleGenerator generator = new WordSearchPuzzleGenerator(words,25);
+        generator.generate();
         logger.info("Puzzle grid printed to console.");
     }
 }

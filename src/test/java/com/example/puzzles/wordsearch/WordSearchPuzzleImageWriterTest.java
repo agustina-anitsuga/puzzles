@@ -27,9 +27,9 @@ public class WordSearchPuzzleImageWriterTest {
         words.add(new Word(2, "MNO", new Position(new Coordinate(2,2), Direction.RIGHT)));
         words.add(new Word(3, "STU", new Position(new Coordinate(3,3), Direction.RIGHT)));
         WordSearchPuzzle puzzle = new WordSearchPuzzle(LocalDateTime.now(), grid, words);
-        WordSearchPuzzleImageWriter writer = new WordSearchPuzzleImageWriter(puzzle, false);
+        WordSearchPuzzleImageWriter writer = new WordSearchPuzzleImageWriter(puzzle);
         String filePath = "test-wordsearch.png";
-        writer.writeToFile(filePath);
+        writer.writeToFile(filePath,true);
         java.io.File file = new java.io.File(filePath);
         assertTrue(file.exists() && file.length() > 0, "Image file should be created and not empty");
         assertTrue(file.delete(), "Image file should be deleted after test");
