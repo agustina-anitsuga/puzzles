@@ -41,7 +41,7 @@ public class WordSearchPuzzleBookDocumentWriter extends BookDocumentWriter {
             writePuzzleTitle(doc, i);
 
             // Write the puzzle grid
-            writeGrid(doc, puzzle, false);
+            writePuzzle(doc, puzzle);
 
             // List the words
             writeWordsToFind(doc, puzzle);
@@ -69,28 +69,37 @@ public class WordSearchPuzzleBookDocumentWriter extends BookDocumentWriter {
     }
 
     private void writeSolutionsSection(XWPFDocument doc, List<WordSearchPuzzle> puzzles) {
-        // Solutions section
-        writeSolutionsTitle(doc);
-
-        for (int i = 0; i < puzzles.size(); i++) {
-            WordSearchPuzzle puzzle = puzzles.get(i);
-            writeSolutionTitle(doc, i);
-            // Write the solution grid in smaller font
-            writeGrid(doc, puzzle, true);
+        // Inline the solutions section title
+        addSolutionsTitle(doc);
+        int numCols = 2;
+        int numRows = (int) Math.ceil(puzzles.size() / (double) numCols);
+        XWPFTable table = doc.createTable(numRows, numCols);
+        int puzzleIdx = 0;
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                XWPFTableCell cell = table.getRow(row).getCell(col);
+                if (puzzleIdx < puzzles.size()) {
+                    WordSearchPuzzle puzzle = puzzles.get(puzzleIdx);
+                    // Solution title
+                    writeSolutionTitle(puzzleIdx, cell);
+                    // Solution image
+                    int size = 200; // smaller size for solutions
+                    String imagePath = PuzzleProperties.getProperty("puzzles.output.dir")
+                            + File.separator + puzzle.getName() + "-sol.png";
+                    ParagraphAlignment alignment = ParagraphAlignment.LEFT;
+                    addImage(doc, size, imagePath, alignment);
+                } else {
+                    // Remove empty cell's default paragraph
+                    cell.removeParagraph(0);
+                }
+                puzzleIdx++;
+            }
         }
+        // Remove the first empty paragraph that Apache POI adds by default to the table
+        table.removeRow(0);
     }
 
-    private void writeSolutionTitle(XWPFDocument doc, int i) {
-        XWPFParagraph solPuzzleTitle = doc.createParagraph();
-        solPuzzleTitle.setAlignment(ParagraphAlignment.LEFT);
-        XWPFRun solPuzzleRun = solPuzzleTitle.createRun();
-        solPuzzleRun.setText("Solution to Puzzle " + (i + 1));
-        solPuzzleRun.setFontSize(10);
-        solPuzzleRun.setBold(true);
-        solPuzzleRun.addBreak();
-    }
-
-    private void writeSolutionsTitle(XWPFDocument doc) {
+    private void addSolutionsTitle(XWPFDocument doc) {
         XWPFParagraph solTitle = doc.createParagraph();
         solTitle.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun solRun = solTitle.createRun();
@@ -100,24 +109,29 @@ public class WordSearchPuzzleBookDocumentWriter extends BookDocumentWriter {
         solRun.addBreak();
     }
 
-    private void writeGrid(XWPFDocument doc, WordSearchPuzzle puzzle, boolean solution) {
+    private void writeSolutionTitle(int puzzleIdx, XWPFTableCell cell) {
+        XWPFParagraph titlePara = cell.addParagraph();
+        XWPFRun titleRun = titlePara.createRun();
+        titleRun.setText("Solution to Puzzle " + (puzzleIdx + 1));
+        titleRun.setFontSize(10);
+        titleRun.setBold(true);
+        titleRun.addBreak();
+    }
+
+
+    private void writePuzzle(XWPFDocument doc, WordSearchPuzzle puzzle) {
         // Insert the puzzle image instead of rendering the grid as a table
         int size = 400;
         String imagePath = PuzzleProperties.getProperty("puzzles.output.dir")
-                             + File.separator + puzzle.getName();
-        if(!solution) {
-            imagePath += ".png";
-        } else {
-            imagePath += "-sol.png";
-            size = 200;
-        }
+                             + File.separator + puzzle.getName() + ".png";
+        ParagraphAlignment alignment = ParagraphAlignment.CENTER;
+        addImage(doc, size, imagePath, alignment);
+    }
 
+    private void addImage(XWPFDocument doc, int size, String imagePath, ParagraphAlignment alignment) {
         try (java.io.FileInputStream is = new java.io.FileInputStream(imagePath)) {
             XWPFParagraph para = doc.createParagraph();
-            para.setAlignment(ParagraphAlignment.CENTER);
-            if(solution) {
-                para.setAlignment(ParagraphAlignment.LEFT);
-            }
+            para.setAlignment(alignment);
             XWPFRun run = para.createRun();
             run.addPicture(is, XWPFDocument.PICTURE_TYPE_PNG, imagePath, 
                 org.apache.poi.util.Units.toEMU(size), 
@@ -131,4 +145,5 @@ public class WordSearchPuzzleBookDocumentWriter extends BookDocumentWriter {
         XWPFParagraph after = doc.createParagraph();
         after.createRun().addBreak();
     }
+
 }
