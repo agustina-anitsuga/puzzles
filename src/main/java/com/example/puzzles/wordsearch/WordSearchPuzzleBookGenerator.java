@@ -5,7 +5,6 @@ import com.example.puzzles.model.WordSearchPuzzle;
 import com.example.puzzles.tools.PuzzleProperties;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class WordSearchPuzzleBookGenerator {
      * Generates all puzzles in the book and writes their images to the output directory.
      * @return list of generated WordSearchPuzzle objects
      */
-    public void generateBook() throws IOException {
+    public void generateBook() throws Exception {
         // read list of words
         WordReader reader = new WordReader(wordListFilePath);
         // generate puzzles
@@ -54,7 +53,7 @@ public class WordSearchPuzzleBookGenerator {
         return puzzles;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         String wordListFile = PuzzleProperties.getProperty("word-search.file.path");
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
         int gridSize = 25;

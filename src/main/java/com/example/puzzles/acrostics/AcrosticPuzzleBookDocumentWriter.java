@@ -4,66 +4,30 @@ import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PuzzleProperties;
+import com.example.puzzles.tools.BookDocumentWriter;
 
-import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.Units;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.List;
 
-public class AcrosticPuzzleBookDocumentWriter {
+public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
     
     private static final String FONT_FAMILY = "Arial";
     private static final int NORMAL_TEXT_FONT_SIZE = 12;
-    private static final int BOOK_TITLE_FONT_SIZE = 28;
     private static final int SECTION_TITLE_FONT_SIZE = 18;
     private static final int PAGE_TITLE_FONT_SIZE = 14;
 
     public XWPFDocument createDocument(List<AcrosticPuzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
-        XWPFDocument doc = new XWPFDocument();        
-        setPageFormat(doc);
-        addTitlePage(doc);
+        XWPFDocument doc = super.createDocument();
         addPuzzlePages(doc, puzzles, imagePaths, clueImagePaths);
         addSolutionsSection(doc, puzzles);
-        addPageNumbers(doc); // Add page numbers in the footer
+        super.endDocument(doc); 
         return doc;
-    }
-
-    private void setPageFormat(XWPFDocument doc) {
-        // Set page size to 8.5 x 11 inches (US Letter)
-        CTBody body = doc.getDocument().getBody();
-        if (body.isSetSectPr()) {
-            CTSectPr sectPr = body.getSectPr();
-            if (sectPr.isSetPgSz()) {
-                sectPr.getPgSz().setW(BigInteger.valueOf(12240)); // 8.5 * 1440
-                sectPr.getPgSz().setH(BigInteger.valueOf(15840)); // 11 * 1440
-            } else {
-                CTPageSz pageSz = sectPr.addNewPgSz();
-                pageSz.setW(BigInteger.valueOf(12240));
-                pageSz.setH(BigInteger.valueOf(15840));
-            }
-        } else {
-            CTSectPr sectPr = body.addNewSectPr();
-            CTPageSz pageSz = sectPr.addNewPgSz();
-            pageSz.setW(BigInteger.valueOf(12240));
-            pageSz.setH(BigInteger.valueOf(15840));
-        }
-    }
-
-    private void addTitlePage(XWPFDocument doc) {
-        XWPFParagraph title = doc.createParagraph();
-        title.setAlignment(ParagraphAlignment.CENTER);
-        XWPFRun run = title.createRun();
-        run.setText(PuzzleProperties.getProperty("label.bookTitle"));
-        run.setBold(true);
-        run.setFontSize(BOOK_TITLE_FONT_SIZE);
-        run.addBreak(BreakType.PAGE);
     }
 
     private void addPuzzlePages(XWPFDocument doc, List<AcrosticPuzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
@@ -227,28 +191,5 @@ public class AcrosticPuzzleBookDocumentWriter {
         }
     }
 
-    private void addPageNumbers(XWPFDocument doc) {
-        XWPFHeaderFooterPolicy footerPolicy = doc.createHeaderFooterPolicy();
-        XWPFFooter footer = footerPolicy.createFooter(XWPFHeaderFooterPolicy.DEFAULT);
-        XWPFParagraph para = footer.createParagraph();
-        para.setAlignment(ParagraphAlignment.CENTER);
-        XWPFRun run = para.createRun();
-        run.setFontFamily(FONT_FAMILY);
-        run.setFontSize(10);
-        run.setText("Page ");
-        run.getCTR().addNewFldChar().setFldCharType(org.openxmlformats.schemas.wordprocessingml.x2006.main.STFldCharType.BEGIN);
-        XWPFRun pageNumRun = para.createRun();
-        pageNumRun.getCTR().addNewInstrText().setStringValue("PAGE");
-        XWPFRun endRun = para.createRun();
-        endRun.getCTR().addNewFldChar().setFldCharType(org.openxmlformats.schemas.wordprocessingml.x2006.main.STFldCharType.END);
-
-        // Set different first page for the section so the footer (page number) starts on page 2
-        CTSectPr sectPr = doc.getDocument().getBody().getSectPr();
-        if (sectPr == null) {
-            sectPr = doc.getDocument().getBody().addNewSectPr();
-        }
-        //CTPageMar pageMar = sectPr.isSetPgMar() ? sectPr.getPgMar() : sectPr.addNewPgMar();
-        sectPr.addNewTitlePg(); // This enables 'Different First Page'
-    }
 
 }
