@@ -56,7 +56,7 @@ public class WordSearchPuzzleBookGenerator {
     public static void main(String[] args) throws Exception {
         String wordListFile = PuzzleProperties.getProperty("word-search.file.path");
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
-        int gridSize = 25;
+        int gridSize = PuzzleProperties.getIntProperty("word-search.grid.size");
         WordSearchPuzzleBookGenerator bookGen = new WordSearchPuzzleBookGenerator(wordListFile, gridSize, outputDir);
         bookGen.generateBook();
         System.out.println("Generated word search puzzle book.");
