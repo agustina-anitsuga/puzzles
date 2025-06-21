@@ -7,17 +7,19 @@ import com.example.puzzles.tools.PuzzleProperties;
 import com.example.puzzles.tools.BookDocumentWriter;
 
 import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTAbstractNum;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.Units;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 
 public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
     
-    private static final String FONT_FAMILY = "Arial";
+    private static final String FONT_FAMILY = "Georgia";
     private static final int NORMAL_TEXT_FONT_SIZE = 12;
     private static final int SECTION_TITLE_FONT_SIZE = 18;
     private static final int PAGE_TITLE_FONT_SIZE = 14;
@@ -128,7 +130,6 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             double scaleHeight = 1;
             if (widthInInches > maxWidthInInches) {
                 scaleWidth = (double) maxWidthInInches / widthInInches;
-                
             }
             if(heightInInches > maxHeightInInches){
                 scaleHeight = (double) maxHeightInInches / heightInInches;
@@ -140,6 +141,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             imgPara.setAlignment(ParagraphAlignment.LEFT);
             XWPFRun imgRun = imgPara.createRun();
             imgRun.addPicture(is, Document.PICTURE_TYPE_PNG, imagePath, widthInEmu, heightInEmu);
+            imgRun.addBreak(BreakType.PAGE); // Add page break after the image
         }
     }
 
@@ -183,13 +185,29 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             solParaRun.setText(PuzzleProperties.getProperty("label.author")+": "+ puzzle.getPhrase().getAuthor());
             solParaRun.addBreak();
             solParaRun.setText(PuzzleProperties.getProperty("label.words")+": ");
-            int wordNum = 1;
-            for (Word word : puzzle.getWords()) {
-                solParaRun.setText(wordNum++ + ". " + word.getWord() + "; ");
+            solParaRun.addBreak();
+            // Numbered bullet list for words
+            for (int wordNum = 0; wordNum < puzzle.getWords().size(); wordNum++) {
+                Word word = puzzle.getWords().get(wordNum);
+                XWPFParagraph bulletPara = doc.createParagraph();
+                bulletPara.setNumID(addOrGetNumbering(doc));
+                XWPFRun bulletRun = bulletPara.createRun();
+                bulletRun.setText(word.getWord());
             }
             solParaRun.addBreak(); // blank line between solutions
         }
     }
 
-
+    // Helper to add or get a numbering style for numbered bullets
+    private BigInteger addOrGetNumbering(XWPFDocument doc) {
+        if (doc.getNumbering() == null || !doc.getNumbering().numExist(BigInteger.ONE)) {
+            XWPFNumbering numbering = doc.createNumbering();
+            CTAbstractNum ctAbstractNum = CTAbstractNum.Factory.newInstance();
+            ctAbstractNum.setAbstractNumId(BigInteger.ONE);
+            XWPFAbstractNum abstractNum = new XWPFAbstractNum(ctAbstractNum);
+            BigInteger abstractNumId = numbering.addAbstractNum(abstractNum);
+            return numbering.addNum(abstractNumId);
+        }
+        return BigInteger.ONE;
+    }
 }
