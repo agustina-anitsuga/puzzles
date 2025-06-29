@@ -44,7 +44,11 @@ public class AcrosticPuzzleImageWriter {
         for (Word word : aPuzzle.getWords()) {
             char phraseChar = aPuzzle.getPhrase().getChunks().getFirst().charAt(wordNum++);
             int index = word.getWord().indexOf(phraseChar);
-            if( index > maxToLeft ){
+            if( index < 0 ){
+                phraseChar = aPuzzle.getPhrase().getChunks().getLast().charAt(wordNum-1);
+                index = word.getWord().indexOf(phraseChar);
+            }
+            else if( index > maxToLeft ){
                 maxToLeft = index;
             }
             if( word.getWord().length() - index > maxToRight ){
@@ -89,33 +93,89 @@ public class AcrosticPuzzleImageWriter {
         }
     }
 
-    private void drawWords(Graphics2D g2d, String phrase, List<Word> words, int centerColumn, int cellSize, boolean isSolution) {
+    // the word can intersect with the phrase in two places,so we need to identify the points of intersection of the word with the each chunk and then draw accordingly.
+    // also 
+    private void drawWords(Graphics2D g2d, Phrase phrase, List<Word> words, int centerColumn, int cellSize, boolean isSolution) {
         for (int i = 0; i < words.size(); i++) {
             String word = words.get(i).getWord().toLowerCase();
 
-            int index = word.indexOf(phrase.charAt(i));
+            int index = getIntersectingIndex(phrase, i, word);
             if (index == -1) {
-                logger.error("Word does not contain the character from the phrase: " + word);
-                continue;
-            }
+                index = word.indexOf(phrase.getChunks().getLast().charAt(i));
+                if( index == -1 ){
+                    logger.warn("Character not found in word: " + phrase.getChunks().getFirst().charAt(i) + " in word: " + word);
+                    continue; // Skip this word if the character is not found
+                } else {
+                    // Draw the sequence number
+                    g2d.setColor(Color.BLACK);
+                    int numberX = (centerColumn - index - 1) * cellSize; // Adjust position for the number
+                    int numberY = i * cellSize + cellSize / 3; // Adjust position for the number
+                    drawLetter(g2d, String.valueOf(i + 1), numberX, numberY, cellSize/2);
 
-            // Draw the sequence number
-            g2d.setColor(Color.BLACK);
-            int numberX = (centerColumn - index - 1) * cellSize; // Adjust position for the number
-            int numberY = i * cellSize + cellSize / 3; // Adjust position for the number
-            drawLetter(g2d, String.valueOf(i + 1), numberX, numberY, cellSize/2);
+                    for (int j = 0; j < word.length(); j++) {
+                        char wordChar = word.charAt(j);
+                        int x = (j - index + centerColumn) * cellSize;
+                        int y = i * cellSize;
 
-            for (int j = 0; j < word.length(); j++) {
-                char wordChar = word.charAt(j);
-                int x = (j - index + centerColumn) * cellSize;
-                int y = i * cellSize;
+                        boolean isIntersecting = (j == index);
+                        drawSquare(g2d, x, y, cellSize, isIntersecting);
+                        if(isSolution)
+                            drawLetter(g2d, String.valueOf(wordChar), x, y, cellSize);
+                    }
+                }
+            } else {
+                // Draw the sequence number
+                g2d.setColor(Color.BLACK);
+                int numberX = (centerColumn - index - 1) * cellSize; // Adjust position for the number
+                int numberY = i * cellSize + cellSize / 3; // Adjust position for the number
+                drawLetter(g2d, String.valueOf(i + 1), numberX, numberY, cellSize/2);
 
-                boolean isIntersecting = (j == index);
-                drawSquare(g2d, x, y, cellSize, isIntersecting);
-                if(isSolution)
-                    drawLetter(g2d, String.valueOf(wordChar), x, y, cellSize);
+                for (int j = 0; j < word.length(); j++) {
+                    char wordChar = word.charAt(j);
+                    int x = (j - index + centerColumn) * cellSize;
+                    int y = i * cellSize;
+
+                    boolean isIntersecting = (j == index);
+                    drawSquare(g2d, x, y, cellSize, isIntersecting);
+                    if(isSolution)
+                        drawLetter(g2d, String.valueOf(wordChar), x, y, cellSize);
+                }
             }
         }
+    }
+
+    private int getIntersectingIndex(Phrase phrase, int row, String word) {
+        char charC1 = phrase.getChunks().getFirst().charAt(row);
+        int indexC1 = word.indexOf(charC1);
+        if( indexC1 >=0 ){
+            
+            int chunkSize = phrase.getChunks().size();
+            if( chunkSize == 1 ) {
+                return indexC1; // Only one chunk, return the index of the character
+            }
+
+            String lastChunk = phrase.getChunks().getLast();
+            if(lastChunk.length() <= row){
+                return indexC1;
+            }
+            
+            char charC2 = lastChunk.charAt(row);
+            int distance = 3;
+            if( word.length() > (indexC1+distance) && word.charAt(indexC1 + distance) == charC2 ) {
+                return indexC1; // Found both characters in the word
+            } else {
+                indexC1 = word.indexOf(charC1,indexC1); 
+                if( indexC1 < 0 ){
+                    logger.warn("Characters not found in word: " + word);
+                    return -1; // Character not found
+                } else {
+                    if( word.charAt(indexC1 + distance) == charC2 ) {
+                        return indexC1; // Found both characters in the word
+                    } 
+                }
+            }
+        }
+        return indexC1;
     }
 
     public void generate(String path, String fileName, boolean isSolution) {
@@ -137,7 +197,7 @@ public class AcrosticPuzzleImageWriter {
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
 
         int centerColumn = (maxToLeft+1) ;
-        drawWords(g2d, phrase.getChunks().getFirst(), words, centerColumn, cellSize, isSolution);
+        drawWords(g2d, phrase, words, centerColumn, cellSize, isSolution);
         drawPhrase(g2d, phrase.getChunks().getFirst(), centerColumn, cellSize, isSolution);
         if(phrase.chunkCount() > 1) {
             drawPhrase(g2d, phrase.getChunks().getLast(), 

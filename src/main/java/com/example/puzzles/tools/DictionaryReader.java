@@ -55,6 +55,24 @@ public class DictionaryReader {
         return twords;
     }
 
+
+    public Word getWordWithIn(char character, int position) {
+        List<Word> matchingWords = new ArrayList<>();
+        
+        for (Word word : words) {
+            if ( word.charAt(position) == character) {
+                matchingWords.add(word);
+            }
+        }
+
+        if (matchingWords.isEmpty()) {
+            return null; // Return null if no word contains the character
+        }
+
+        Random random = new Random();
+        return matchingWords.get(random.nextInt(matchingWords.size()));
+    }
+
     public Word getWordWith(char character) {
         List<Word> matchingWords = new ArrayList<>();
         

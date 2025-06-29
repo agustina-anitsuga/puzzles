@@ -50,10 +50,35 @@ public class BookDocumentWriter {
         XWPFParagraph title = doc.createParagraph();
         title.setAlignment(ParagraphAlignment.CENTER);
         XWPFRun run = title.createRun();
-        run.setText(PuzzleProperties.getProperty("label.bookTitle"));
+        run.setFontFamily(FONT_FAMILY);
         run.setBold(true);
         run.setFontSize(BOOK_TITLE_FONT_SIZE);
-        run.addBreak(BreakType.PAGE);
+        run.setText("DON’T PANIC");
+        run.addBreak();
+        run.addBreak();
+        XWPFRun subtitle = title.createRun();
+        subtitle.setFontFamily(FONT_FAMILY);
+        subtitle.setFontSize(20);
+        subtitle.setText(PuzzleProperties.getProperty("label.bookTitle"));
+        subtitle.addBreak();
+        subtitle.addBreak();
+        XWPFRun author = title.createRun();
+        author.setFontFamily(FONT_FAMILY);
+        author.setFontSize(16);
+        author.setText(PuzzleProperties.getProperty("label.authorName"));
+        author.addBreak();
+        author.addBreak();
+        XWPFRun tagline = title.createRun();
+        tagline.setFontFamily(FONT_FAMILY);
+        tagline.setFontSize(14);
+        tagline.setText(PuzzleProperties.getProperty("label.bookTagLine"));
+        tagline.addBreak();
+        tagline.addBreak();
+        XWPFRun series = title.createRun();
+        series.setFontFamily(FONT_FAMILY);
+        series.setFontSize(12);
+        series.setText(PuzzleProperties.getProperty("label.bookSeries"));
+        series.addBreak(BreakType.PAGE);
     }
    
     public void endDocument(XWPFDocument doc) throws Exception {

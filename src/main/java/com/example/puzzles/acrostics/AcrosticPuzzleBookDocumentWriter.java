@@ -7,7 +7,6 @@ import com.example.puzzles.tools.PuzzleProperties;
 import com.example.puzzles.tools.BookDocumentWriter;
 
 import org.apache.poi.xwpf.usermodel.*;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTAbstractNum;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.Units;
 
@@ -51,6 +50,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         XWPFParagraph titlePara = doc.createParagraph();
         titlePara.setAlignment(ParagraphAlignment.LEFT);
         XWPFRun titleRun = titlePara.createRun();
+        titleRun.addBreak();
         titleRun.setText(PuzzleProperties.getProperty("label.characters"));
         titleRun.setFontFamily(FONT_FAMILY);
         titleRun.setFontSize(PAGE_TITLE_FONT_SIZE);
@@ -96,17 +96,38 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         labelRun.setFontFamily(FONT_FAMILY);
         labelRun.setFontSize(PAGE_TITLE_FONT_SIZE);
         labelRun.setBold(true);
-        labelRun.addBreak(); // blank line after the label
 
         // Now write the clues in a different font, one per line
         XWPFParagraph cluesParagraph = doc.createParagraph();
         XWPFRun cluesRun = cluesParagraph.createRun();
         cluesRun.setFontFamily(FONT_FAMILY);
         cluesRun.setFontSize(NORMAL_TEXT_FONT_SIZE);
-        int clueNum = 1;
-        for (Word word : puzzle.getWords()) {
-            cluesRun.setText(clueNum++ + ". " + word.getDefinition());
-            cluesRun.addBreak();
+        List<Word> words = puzzle.getWords();
+
+        // Create a numbered list for the clues
+        XWPFNumbering numbering = doc.createNumbering();
+        org.openxmlformats.schemas.wordprocessingml.x2006.main.CTAbstractNum ctAbstractNum = org.openxmlformats.schemas.wordprocessingml.x2006.main.CTAbstractNum.Factory.newInstance();
+        org.openxmlformats.schemas.wordprocessingml.x2006.main.CTLvl lvl = ctAbstractNum.addNewLvl();
+        lvl.setIlvl(BigInteger.ZERO);
+        lvl.addNewNumFmt().setVal(org.openxmlformats.schemas.wordprocessingml.x2006.main.STNumberFormat.DECIMAL);
+        lvl.addNewLvlText().setVal("%1.");
+        lvl.addNewStart().setVal(BigInteger.ONE); // Start at 1
+        ctAbstractNum.setAbstractNumId(BigInteger.valueOf(0));
+        XWPFAbstractNum abstractNum = new XWPFAbstractNum(ctAbstractNum);
+        BigInteger abstractNumID = numbering.addAbstractNum(abstractNum);
+        BigInteger numId = numbering.addNum(abstractNumID);
+        for (Word word : words) {
+            XWPFParagraph para = doc.createParagraph();
+            para.setNumID(numId);
+
+            // Set a hanging indent 
+            para.setIndentationLeft(600);
+            para.setIndentationHanging(600);
+
+            XWPFRun run = para.createRun();
+            run.setFontFamily(FONT_FAMILY);
+            run.setFontSize(NORMAL_TEXT_FONT_SIZE);
+            run.setText(word.getDefinition());
         }
         cluesRun.addBreak();
     }
@@ -187,27 +208,12 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             solParaRun.setText(PuzzleProperties.getProperty("label.words")+": ");
             solParaRun.addBreak();
             // Numbered bullet list for words
-            for (int wordNum = 0; wordNum < puzzle.getWords().size(); wordNum++) {
-                Word word = puzzle.getWords().get(wordNum);
-                XWPFParagraph bulletPara = doc.createParagraph();
-                bulletPara.setNumID(addOrGetNumbering(doc));
-                XWPFRun bulletRun = bulletPara.createRun();
-                bulletRun.setText(word.getWord());
+            int wordNum = 1;
+            for (Word word : puzzle.getWords()) {
+                solParaRun.setText(wordNum++ + ". " + word.getWord() + "; ");
             }
-            solParaRun.addBreak(); // blank line between solutions
+            solParaRun.addBreak();
         }
     }
 
-    // Helper to add or get a numbering style for numbered bullets
-    private BigInteger addOrGetNumbering(XWPFDocument doc) {
-        if (doc.getNumbering() == null || !doc.getNumbering().numExist(BigInteger.ONE)) {
-            XWPFNumbering numbering = doc.createNumbering();
-            CTAbstractNum ctAbstractNum = CTAbstractNum.Factory.newInstance();
-            ctAbstractNum.setAbstractNumId(BigInteger.ONE);
-            XWPFAbstractNum abstractNum = new XWPFAbstractNum(ctAbstractNum);
-            BigInteger abstractNumId = numbering.addAbstractNum(abstractNum);
-            return numbering.addNum(abstractNumId);
-        }
-        return BigInteger.ONE;
-    }
 }

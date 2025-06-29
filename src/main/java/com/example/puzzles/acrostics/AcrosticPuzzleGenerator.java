@@ -19,6 +19,8 @@ public class AcrosticPuzzleGenerator {
 
     private static final Logger logger = LogManager.getLogger(AcrosticPuzzleGenerator.class);
 
+    private static final int DISTANCE = 3;
+
     public static void main(String[] args) {
         logger.info("Welcome to the Puzzle Generator!");
         AcrosticPuzzleGenerator generator = new AcrosticPuzzleGenerator();
@@ -74,12 +76,18 @@ public class AcrosticPuzzleGenerator {
             for (char c1 : phrase.getChunks().getFirst().toCharArray()) {
                 if( secondPhrase.length() > i ) {
                 char c2 = secondPhrase.charAt(i++);
-                Word word = wordReader.getWordWith(c1, c2,3);
+                Word word = wordReader.getWordWith(c1, c2,DISTANCE);
                     if (word != null) {
                         selectedWords.add(word);
                     } else {
-                        selectedWords.add(new Word());
                         logger.warn("No word found for characters: " + c1 + ", " + c2);
+                        word = wordReader.getWordWithIn(c2,1);
+                        if (word != null) {
+                            selectedWords.add(word);
+                        } else {
+                            selectedWords.add(new Word());
+                            logger.warn("No word found for character: " + c2);
+                        }
                     }
                 } else {
                     Word word = wordReader.getWordWith(c1);
