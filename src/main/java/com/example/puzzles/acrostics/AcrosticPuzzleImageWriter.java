@@ -42,18 +42,19 @@ public class AcrosticPuzzleImageWriter {
 
         int wordNum = 0;
         for (Word word : aPuzzle.getWords()) {
-            char phraseChar = aPuzzle.getPhrase().getChunks().getFirst().charAt(wordNum++);
+            char phraseChar = aPuzzle.getPhrase().getChunks().getFirst().charAt(wordNum);
             int index = word.getWord().indexOf(phraseChar);
-            if( index < 0 ){
-                phraseChar = aPuzzle.getPhrase().getChunks().getLast().charAt(wordNum-1);
+            if( index < 0 && aPuzzle.getPhrase().getChunks().getLast().length() > wordNum ){
+                phraseChar = aPuzzle.getPhrase().getChunks().getLast().charAt(wordNum);
                 index = word.getWord().indexOf(phraseChar);
             }
-            else if( index > maxToLeft ){
+            if( index > 0 && index > maxToLeft ){
                 maxToLeft = index;
             }
-            if( word.getWord().length() - index > maxToRight ){
+            if( index > 0 && (word.getWord().length() - index > maxToRight) ){
                 maxToRight = word.getWord().length() - index;
             }
+            wordNum++;
         }
 
         gridWidth = maxToLeft + maxToRight + 1 + puzzle.getPhrase().getDistanceBetweenChunks();
@@ -100,8 +101,9 @@ public class AcrosticPuzzleImageWriter {
             String word = words.get(i).getWord().toLowerCase();
 
             int index = getIntersectingIndex(phrase, i, word);
-            if (index == -1) {
-                index = word.indexOf(phrase.getChunks().getLast().charAt(i));
+            if (index == -1 && phrase.getChunks().getLast().length() > i) {
+                char c2 =  phrase.getChunks().getLast().charAt(i);
+                index = word.indexOf(c2);
                 if( index == -1 ){
                     logger.warn("Character not found in word: " + phrase.getChunks().getFirst().charAt(i) + " in word: " + word);
                     continue; // Skip this word if the character is not found
@@ -164,14 +166,17 @@ public class AcrosticPuzzleImageWriter {
             if( word.length() > (indexC1+distance) && word.charAt(indexC1 + distance) == charC2 ) {
                 return indexC1; // Found both characters in the word
             } else {
-                indexC1 = word.indexOf(charC1,indexC1); 
+                indexC1 = word.indexOf(charC1,indexC1+1); 
                 if( indexC1 < 0 ){
                     logger.warn("Characters not found in word: " + word);
                     return -1; // Character not found
                 } else {
-                    if( word.charAt(indexC1 + distance) == charC2 ) {
+                    if( (word.length() > indexC1 + distance) && (word.charAt(indexC1 + distance) == charC2) ) {
                         return indexC1; // Found both characters in the word
-                    } 
+                    } else {
+                        logger.warn("Characters not found in word: " + word);
+                        return -1; // Character not found
+                    }
                 }
             }
         }
