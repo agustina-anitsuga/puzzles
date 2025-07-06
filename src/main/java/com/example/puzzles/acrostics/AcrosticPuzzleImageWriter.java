@@ -39,21 +39,35 @@ public class AcrosticPuzzleImageWriter {
     private void setSizes(AcrosticPuzzle aPuzzle) {
         gridHeight = puzzle.getPhrase().getChunks().getFirst().length() + 1;
         cellSize = GRID_SIZE;
+        int distance = 3;
 
         int wordNum = 0;
         for (Word word : aPuzzle.getWords()) {
+            
             char phraseChar = aPuzzle.getPhrase().getChunks().getFirst().charAt(wordNum);
-            int index = word.getWord().indexOf(phraseChar);
-            if( index < 0 && aPuzzle.getPhrase().getChunks().getLast().length() > wordNum ){
-                phraseChar = aPuzzle.getPhrase().getChunks().getLast().charAt(wordNum);
-                index = word.getWord().indexOf(phraseChar);
+            int index = getIntersectingIndex(puzzle.getPhrase(), wordNum, word.getWord());
+
+            if (index > 0 ){
+                if( index > 0 && index > maxToLeft ){
+                    maxToLeft = index;
+                }
+                if( index > 0 && ( ( word.getWord().length() - index ) > maxToRight) ){
+                    maxToRight = word.getWord().length() - index ;
+                }
+            } else {
+                if( aPuzzle.getPhrase().getChunks().getLast().length() > wordNum ){
+                    phraseChar = aPuzzle.getPhrase().getChunks().getLast().charAt(wordNum);
+                    index = word.getWord().indexOf(phraseChar);
+                    
+                    if( index > 0 && index > maxToLeft ){
+                        maxToLeft = index;
+                    }
+                    if( index > 0 && ( ( word.getWord().length() - index + distance ) > maxToRight) ){
+                        maxToRight = word.getWord().length() - index + distance ;
+                    }
+                }
             }
-            if( index > 0 && index > maxToLeft ){
-                maxToLeft = index;
-            }
-            if( index > 0 && (word.getWord().length() - index > maxToRight) ){
-                maxToRight = word.getWord().length() - index;
-            }
+
             wordNum++;
         }
 

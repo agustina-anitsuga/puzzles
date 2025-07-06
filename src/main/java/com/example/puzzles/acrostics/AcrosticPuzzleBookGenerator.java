@@ -83,10 +83,14 @@ public class AcrosticPuzzleBookGenerator {
         List<String> imagePaths = new ArrayList<>();
         for (int i = 0; i < puzzles.size(); i++) {
             AcrosticPuzzle puzzle = puzzles.get(i);
+            // generate blank puzzle image
             String imageName = "puzzle-" + (i + 1) + ".png";
             String imagePath = new File(imageDir, imageName).getAbsolutePath();
             new AcrosticPuzzleImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName, false);
             imagePaths.add(imagePath);
+            // generate solution puzzle image
+            imageName = "puzzle-" + (i + 1) + "-sol.png";
+            new AcrosticPuzzleImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName, true);
         }
         return imagePaths;
     }
