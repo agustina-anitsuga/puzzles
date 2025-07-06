@@ -19,6 +19,11 @@ public class Word {
         this.definition = definition;
     }
 
+    public Word(int id, String word, String definition, Position position) {
+        this(id, word, definition);
+        this.position = position;
+    }
+
     public Word(int id, String word, Position position) {
         this.id = id;
         this.word = word;
@@ -35,6 +40,10 @@ public class Word {
 
     public String getDefinition() {
         return definition;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public Position getPosition() {

@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.model.WordSearchPosition;
 import com.example.puzzles.model.WordSearchPuzzle;
-import com.example.puzzles.model.Position;
 import com.example.puzzles.model.Coordinate;
 import com.example.puzzles.model.Direction;
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,9 +23,9 @@ public class WordSearchPuzzleImageWriterTest {
             {'U','V','W','X','Y'}
         };
         List<Word> words = new ArrayList<>();
-        words.add(new Word(1, "ABC", new Position(new Coordinate(0,0), Direction.RIGHT)));
-        words.add(new Word(2, "MNO", new Position(new Coordinate(2,2), Direction.RIGHT)));
-        words.add(new Word(3, "STU", new Position(new Coordinate(3,3), Direction.RIGHT)));
+        words.add(new Word(1, "ABC", new WordSearchPosition(new Coordinate(0,0), Direction.RIGHT)));
+        words.add(new Word(2, "MNO", new WordSearchPosition(new Coordinate(2,2), Direction.RIGHT)));
+        words.add(new Word(3, "STU", new WordSearchPosition(new Coordinate(3,3), Direction.RIGHT)));
         WordSearchPuzzle puzzle = new WordSearchPuzzle(LocalDateTime.now(), grid, words);
         WordSearchPuzzleImageWriter writer = new WordSearchPuzzleImageWriter(puzzle);
         String filePath = "test-wordsearch.png";

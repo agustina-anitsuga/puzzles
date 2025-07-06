@@ -16,6 +16,7 @@ import com.example.puzzles.model.Coordinate;
 import com.example.puzzles.model.Direction;
 import com.example.puzzles.model.Position;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.model.WordSearchPosition;
 import com.example.puzzles.model.WordSearchPuzzle;
 import com.example.puzzles.tools.PuzzleProperties;
 
@@ -105,7 +106,7 @@ public class WordSearchPuzzleGenerator {
                 for (int k = 0; k < word.length(); k++) {
                     grid[row + k * dir.dRow][col + k * dir.dCol] = word.charAt(k);
                 }
-                return new Position(new Coordinate(row,col), dir);
+                return new WordSearchPosition(new Coordinate(row,col), dir);
             }
         }
         throw new Exception( String.format("Could not place word in grid after 100 attempts: {}", word));

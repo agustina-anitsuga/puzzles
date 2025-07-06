@@ -1,6 +1,7 @@
 package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.AcrosticPuzzle;
+import com.example.puzzles.model.AcrosticPuzzlePosition;
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Word;
 import com.example.puzzles.tools.PhraseReader;
@@ -78,11 +79,22 @@ public class AcrosticPuzzleGenerator {
                 char c2 = secondPhrase.charAt(i++);
                 Word word = wordReader.getWordWith(c1, c2,DISTANCE);
                     if (word != null) {
+                        int indexC1 = this.getIntersectingIndex(c1, c2, word.getWord());
+                        AcrosticPuzzlePosition position = new AcrosticPuzzlePosition(
+                            List.of(indexC1,indexC1+DISTANCE), 
+                            List.of(0,1)
+                        );
+                        word.setPosition(position);
                         selectedWords.add(word);
                     } else {
                         logger.warn("No word found for characters: " + c1 + ", " + c2);
                         word = wordReader.getWordWithIn(c2,1);
                         if (word != null) {
+                            AcrosticPuzzlePosition position = new AcrosticPuzzlePosition(
+                                    List.of(word.getWord().indexOf(c2)), 
+                                    List.of(1)
+                            );
+                            word.setPosition(position);
                             selectedWords.add(word);
                         } else {
                             selectedWords.add(new Word());
@@ -103,6 +115,8 @@ public class AcrosticPuzzleGenerator {
             for (char c : phrase.getChunks().getFirst().toCharArray()) {
                 Word word = wordReader.getWordWith(c);
                 if (word != null) {
+                    AcrosticPuzzlePosition position = new AcrosticPuzzlePosition(word.getWord().indexOf(c));
+                    word.setPosition(position);
                     selectedWords.add(word);
                 } else {
                     selectedWords.add(new Word());
@@ -113,4 +127,26 @@ public class AcrosticPuzzleGenerator {
         return selectedWords;
     }
 
+    private int getIntersectingIndex(char charC1, char charC2, String word) {
+        int indexC1 = word.indexOf(charC1);
+        if( indexC1 >=0 ){
+            if( (word.length() > (indexC1+DISTANCE)) && word.charAt(indexC1 + DISTANCE) == charC2 ) {
+                return indexC1; // Found both characters in the word
+            } else {
+                indexC1 = word.indexOf(charC1,indexC1+1); 
+                if( indexC1 < 0 ){
+                    logger.warn("Characters not found in word: " + word);
+                    return -1; // Character not found
+                } else {
+                    if( (word.length() > indexC1 + DISTANCE) && (word.charAt(indexC1 + DISTANCE) == charC2) ) {
+                        return indexC1; // Found both characters in the word
+                    } else {
+                        logger.warn("Characters not found in word: " + word);
+                        return -1; // Character not found
+                    }
+                }
+            }
+        }
+        return indexC1;
+    }
 }
