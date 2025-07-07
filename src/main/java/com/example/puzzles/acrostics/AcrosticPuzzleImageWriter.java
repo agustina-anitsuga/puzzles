@@ -69,7 +69,7 @@ public class AcrosticPuzzleImageWriter {
             }
         }
 
-        gridWidth = maxToLeft + maxToRight + 5; 
+        gridWidth = maxToLeft + maxToRight + 4; 
 
         imageWidth = gridWidth * cellSize;
         imageHeight = gridHeight * cellSize;
@@ -179,7 +179,7 @@ public class AcrosticPuzzleImageWriter {
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
 
-        int centerColumn = maxToLeft + 3 ;
+        int centerColumn = maxToLeft + 2 ;
         drawWords(g2d, phrase, words, centerColumn, cellSize, isSolution);
         drawPhrase(g2d, phrase.getChunks().getFirst(), centerColumn, cellSize, isSolution);
         if(phrase.chunkCount() > 1) {
