@@ -9,7 +9,7 @@ public class Phrase {
     private List<String> chunks;
     private String source;
     private String author;
-    private int distanceBetweenChunks = 2;
+    private int distanceBetweenChunks = 0;
     private int longCap = 25;
 
     public Phrase(int id, String phrase, String source, String author) {

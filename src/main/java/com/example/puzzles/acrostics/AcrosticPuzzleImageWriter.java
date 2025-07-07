@@ -59,8 +59,8 @@ public class AcrosticPuzzleImageWriter {
                     }
                 } else {
                     index = position.getIntersections().getLast();
-                    if( index > maxToLeft ){
-                        maxToLeft = index;
+                    if( (index - distance) > maxToLeft ){
+                        maxToLeft = index - distance;
                     }
                     if( ( word.getWord().length() - index + distance ) > maxToRight) {
                         maxToRight = word.getWord().length() - index + distance ;
@@ -69,7 +69,7 @@ public class AcrosticPuzzleImageWriter {
             }
         }
 
-        gridWidth = maxToLeft + maxToRight + 1 + puzzle.getPhrase().getDistanceBetweenChunks();
+        gridWidth = maxToLeft + maxToRight + distance + 2; 
 
         imageWidth = gridWidth * cellSize;
         imageHeight = gridHeight * cellSize;
@@ -179,12 +179,12 @@ public class AcrosticPuzzleImageWriter {
         g2d.setColor(Color.BLACK);
         g2d.setFont(new Font("Arial", Font.PLAIN, 20));
 
-        int centerColumn = (maxToLeft+1) ;
+        int centerColumn = maxToLeft + 3 ;
         drawWords(g2d, phrase, words, centerColumn, cellSize, isSolution);
         drawPhrase(g2d, phrase.getChunks().getFirst(), centerColumn, cellSize, isSolution);
         if(phrase.chunkCount() > 1) {
             drawPhrase(g2d, phrase.getChunks().getLast(), 
-                centerColumn + phrase.getDistanceBetweenChunks() + 1, cellSize, isSolution);
+                centerColumn + phrase.getDistanceBetweenChunks(), cellSize, isSolution);
         }
 
         g2d.dispose();

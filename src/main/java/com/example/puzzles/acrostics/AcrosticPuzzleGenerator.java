@@ -41,7 +41,8 @@ public class AcrosticPuzzleGenerator {
 
     private AcrosticPuzzle buildPuzzleForPhrase(Phrase phrase) {
         logger.info("Random Phrase: " + phrase);
-
+        phrase.setDistanceBetweenChunks(DISTANCE);
+        
         AcrosticPuzzle puzzle = buildPuzzle(phrase);
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
 
@@ -60,6 +61,7 @@ public class AcrosticPuzzleGenerator {
     }
 
     public AcrosticPuzzle buildPuzzle(Phrase phrase) {
+        phrase.setDistanceBetweenChunks(DISTANCE);
         List<Word> selectedWords = selectWords(phrase);
         AcrosticPuzzle puzzle = new AcrosticPuzzle(LocalDateTime.now(), phrase, selectedWords);
         logger.info(puzzle.toString());
@@ -76,8 +78,8 @@ public class AcrosticPuzzleGenerator {
             String secondPhrase = phrase.getChunks().getLast();
             for (char c1 : phrase.getChunks().getFirst().toCharArray()) {
                 if( secondPhrase.length() > i ) {
-                char c2 = secondPhrase.charAt(i++);
-                Word word = wordReader.getWordWith(c1, c2,DISTANCE);
+                    char c2 = secondPhrase.charAt(i++);
+                    Word word = wordReader.getWordWith(c1, c2,DISTANCE);
                     if (word != null) {
                         int indexC1 = this.getIntersectingIndex(c1, c2, word.getWord());
                         AcrosticPuzzlePosition position = new AcrosticPuzzlePosition(
@@ -104,6 +106,8 @@ public class AcrosticPuzzleGenerator {
                 } else {
                     Word word = wordReader.getWordWith(c1);
                     if (word != null) {
+                        AcrosticPuzzlePosition position = new AcrosticPuzzlePosition(word.getWord().indexOf(c1));
+                        word.setPosition(position);
                         selectedWords.add(word);
                     } else {
                         selectedWords.add(new Word());
