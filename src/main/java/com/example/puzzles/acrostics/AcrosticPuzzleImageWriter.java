@@ -42,13 +42,19 @@ public class AcrosticPuzzleImageWriter {
         cellSize = GRID_SIZE;
         int distance = puzzle.getPhrase().getDistanceBetweenChunks();
 
+        System.out.println("" );
+
         for (Word word : aPuzzle.getWords()) {
-            
-            AcrosticPuzzlePosition position = (AcrosticPuzzlePosition)aPuzzle.getWords().getFirst().getPosition();
+
+            AcrosticPuzzlePosition position = (AcrosticPuzzlePosition) word.getPosition();
             
             if( position!= null) {
                 int index = position.getIntersections().getFirst();
                 int intersectingChunk = position.getIntersectingChunk().getFirst();
+
+                System.out.println("word: " + word.getWord() + 
+                    " index: " + index + 
+                    " intersectingChunk: " + intersectingChunk );
 
                 if (intersectingChunk == 0 ){
                     if( index > maxToLeft ){
@@ -69,7 +75,9 @@ public class AcrosticPuzzleImageWriter {
             }
         }
 
-        gridWidth = maxToLeft + maxToRight + distance + 2; 
+        System.out.println("maxToLeft: " + maxToLeft + 
+            " maxToRight: " + maxToRight );
+        gridWidth = maxToLeft + maxToRight + 5; 
 
         imageWidth = gridWidth * cellSize;
         imageHeight = gridHeight * cellSize;
