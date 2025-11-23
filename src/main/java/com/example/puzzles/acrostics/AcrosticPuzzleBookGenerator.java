@@ -1,10 +1,15 @@
 package com.example.puzzles.acrostics;
 
 import com.example.puzzles.model.AcrosticPuzzle;
+import com.example.puzzles.model.AcrosticPuzzleBook;
 import com.example.puzzles.model.Phrase;
 import com.example.puzzles.model.Puzzle;
+import com.example.puzzles.tools.FileUtils;
 import com.example.puzzles.tools.PhraseReader;
 import com.example.puzzles.tools.PuzzleProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -23,15 +28,55 @@ public class AcrosticPuzzleBookGenerator {
     private static final int PHRASE_LONG_CAP = PuzzleProperties.getIntProperty("acrostic.book.puzzle.phrase.long");
 
     public static void main(String[] args) throws Exception {
-        new AcrosticPuzzleBookGenerator().generateBook();
+        String name = "acrostic-puzzle-book.json";
+        //new AcrosticPuzzleBookGenerator().generateBook(name);
+        new AcrosticPuzzleBookGenerator().regenerateBook(name);
     }
 
-    public void generateBook() throws Exception {
+    public AcrosticPuzzleBook regenerateBook(String name) throws Exception {
+        AcrosticPuzzleBook book = readBook(name);
+        book.getPuzzles().stream().forEach( puzzle -> { try {
+            new AcrosticPuzzleGenerator().generatePuzzleFiles(puzzle);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } } );
+        generateWordDocument(book);
+        return book;
+    }
+
+    private AcrosticPuzzleBook readBook(String name) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
+        AcrosticPuzzleBook book = mapper.readValue(new File(outputDir+"/"+name), AcrosticPuzzleBook.class);
+        return book;
+    }
+
+    public AcrosticPuzzleBook generateBook(String name) throws Exception {
         List<Phrase> selectedPhrases = selectPhrases();
         List<AcrosticPuzzle> puzzles = generatePuzzles(selectedPhrases);
         List<String> imagePaths = generatePuzzleImages(puzzles);
         List<String> clueImagePaths = generatePuzzleCluesImages(puzzles);
-        XWPFDocument doc = new AcrosticPuzzleBookDocumentWriter().createDocument(puzzles, imagePaths, clueImagePaths);
+        AcrosticPuzzleBook book = new AcrosticPuzzleBook(name,selectedPhrases,puzzles,imagePaths,clueImagePaths);
+        generateJson(book);
+        generateWordDocument(book);
+        return book;
+    }
+
+    private void generateJson(AcrosticPuzzleBook book) throws IOException {
+        StringBuffer sb = new StringBuffer();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        sb.append( mapper.writeValueAsString(book) );
+        String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
+        FileUtils.writeToFile(sb.toString(), outputDir, book.getName());
+    }
+
+    private void generateWordDocument(AcrosticPuzzleBook book)
+            throws Exception, IOException {
+        XWPFDocument doc = new AcrosticPuzzleBookDocumentWriter().createDocument(book.getPuzzles(), book.getImagePaths(), book.getClueImagePaths());
         saveDocument(doc);
     }
 
@@ -42,7 +87,7 @@ public class AcrosticPuzzleBookGenerator {
         List<String> imagePaths = new ArrayList<>();
         for (int i = 0; i < puzzles.size(); i++) {
             Puzzle puzzle = puzzles.get(i);
-            String imageName = "puzzle-" + (i + 1) + "-character-clues.png";
+            String imageName = puzzle.getName() + "-character-clue.png";
             String imagePath = new File(imageDir, imageName).getAbsolutePath();
             new AcrosticCharacterCluesImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName);
             imagePaths.add(imagePath);
@@ -84,13 +129,13 @@ public class AcrosticPuzzleBookGenerator {
         for (int i = 0; i < puzzles.size(); i++) {
             AcrosticPuzzle puzzle = puzzles.get(i);
             // generate blank puzzle image
-            String imageName = "puzzle-" + (i + 1) + ".png";
+            String imageName = puzzle.getName() + ".png";
             String imagePath = new File(imageDir, imageName).getAbsolutePath();
             AcrosticPuzzleImageWriter iw = new AcrosticPuzzleImageWriter(puzzle);
             iw.generate(imageDir.getAbsolutePath(), imageName, false);
             imagePaths.add(imagePath);
             // generate solution puzzle image
-            imageName = "puzzle-" + (i + 1) + "-sol.png";
+            imageName = puzzle.getName() + "-sol.png";
             iw.generate(imageDir.getAbsolutePath(), imageName, true);
         }
         return imagePaths;

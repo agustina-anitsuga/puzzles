@@ -22,14 +22,14 @@ public class AcrosticPuzzleGenerator {
 
     private static final int DISTANCE = 3;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         logger.info("Welcome to the Puzzle Generator!");
         AcrosticPuzzleGenerator generator = new AcrosticPuzzleGenerator();
         generator.generate();
         logger.info("Puzzle generation completed.");
     }
 
-    public void generate() {
+    public void generate() throws Exception {
         String filePath = PuzzleProperties.getProperty("phrases.file.path");
         Phrase phrase = new PhraseReader().getRandomPhrase(new File(filePath).getAbsolutePath());
         if (phrase != null) {
@@ -39,14 +39,19 @@ public class AcrosticPuzzleGenerator {
         }
     }
 
-    private AcrosticPuzzle buildPuzzleForPhrase(Phrase phrase) {
-        logger.info("Random Phrase: " + phrase);
-        phrase.setDistanceBetweenChunks(DISTANCE);
-        
+    private AcrosticPuzzle buildPuzzleForPhrase(Phrase phrase) throws Exception {
+        logger.info("Phrase: " + phrase);
+        phrase.setDistanceBetweenChunks(DISTANCE);       
         AcrosticPuzzle puzzle = buildPuzzle(phrase);
+        generatePuzzleFiles(puzzle);
+        return puzzle;
+    }
+
+    public void generatePuzzleFiles(AcrosticPuzzle puzzle) throws Exception {
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
 
         AcrosticPuzzleFileWriter puzzleFileWriter = new AcrosticPuzzleFileWriter(puzzle);
+        puzzleFileWriter.generatePuzzleFile(outputDir, puzzle.getName() );
         puzzleFileWriter.generateClueFile(outputDir, puzzle.getName()+"-clue.txt");
         puzzleFileWriter.generateSolutionFile(outputDir, puzzle.getName()+"-sol.txt");
 
@@ -56,8 +61,6 @@ public class AcrosticPuzzleGenerator {
 
         AcrosticCharacterCluesImageWriter characterClueImageWriter = new AcrosticCharacterCluesImageWriter(puzzle);
         characterClueImageWriter.generate(outputDir, puzzle.getName()+"-character-clue.png");
-
-        return puzzle;
     }
 
     public AcrosticPuzzle buildPuzzle(Phrase phrase) {

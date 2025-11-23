@@ -3,9 +3,14 @@ package com.example.puzzles.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AcrosticPuzzle extends Puzzle {
     
     private Phrase phrase;
+
+    public AcrosticPuzzle(){}
 
     public AcrosticPuzzle(LocalDateTime generation, Phrase phrase, List<Word> words) {
         super(generation, words);

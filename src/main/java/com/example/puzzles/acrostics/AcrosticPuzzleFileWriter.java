@@ -1,16 +1,18 @@
 package com.example.puzzles.acrostics;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.tools.FileUtils;
 import com.example.puzzles.tools.PuzzleProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class AcrosticPuzzleFileWriter {
 
@@ -22,15 +24,7 @@ public class AcrosticPuzzleFileWriter {
         this.puzzle = puzzle;
     }
 
-    private void writeToFile(String content, String outputDir, String fileName) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputDir + File.separator + fileName))) {
-            writer.write(content);
-        } catch (IOException e) {
-            logger.error("Error writing file: " + fileName + " - " + e.getMessage(), e);
-        }
-    }
-
-    public void generateClueFile(String outputDir, String fileName) {
+    public void generateClueFile(String outputDir, String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append(PuzzleProperties.getProperty("label.clues"));
         sb.append("\n\n");
@@ -43,10 +37,10 @@ public class AcrosticPuzzleFileWriter {
         sb.append("\n\n");
         sb.append(getSortedCharacters());
 
-        writeToFile(sb.toString(), outputDir, fileName);
+        FileUtils.writeToFile(sb.toString(), outputDir, fileName);
     }
 
-    public void generateSolutionFile(String outputDir, String fileName) {
+    public void generateSolutionFile(String outputDir, String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append(PuzzleProperties.getProperty("label.solution"));
         sb.append("\n\n");
@@ -63,7 +57,7 @@ public class AcrosticPuzzleFileWriter {
         }
         sb.append("\n");
 
-        writeToFile(sb.toString(), outputDir, fileName);
+        FileUtils.writeToFile(sb.toString(), outputDir, fileName);
     }
 
     public String getSortedCharacters() {
@@ -73,5 +67,21 @@ public class AcrosticPuzzleFileWriter {
             .sorted()
             .forEach(c -> sb.append(c).append(" "));
         return sb.toString().trim();
+    }
+
+    public void generatePuzzleFile(String outputDir, String fileName) throws IOException {
+        StringBuffer sb = new StringBuffer();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        try {
+            sb.append( mapper.writeValueAsString(puzzle) );
+        } catch (JsonProcessingException e) {
+            logger.error("Error writing json file: " + fileName + " - " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+
+        FileUtils.writeToFile(sb.toString(), outputDir, fileName);
     }
 }

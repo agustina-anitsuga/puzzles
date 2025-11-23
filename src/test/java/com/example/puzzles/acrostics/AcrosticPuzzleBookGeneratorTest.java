@@ -12,7 +12,7 @@ public class AcrosticPuzzleBookGeneratorTest {
     @Test
     public void testGenerateBookCreatesOutput() throws Exception {
         AcrosticPuzzleBookGenerator generator = new AcrosticPuzzleBookGenerator();
-        generator.generateBook();
+        generator.generateBook("test1");
         File output = new File(PuzzleProperties.getProperty("puzzles.output.dir")+"/"+PuzzleProperties.getProperty("output.acrostic.book.docx"));
         assertTrue(output.exists(), "Puzzle book should be created");
     }

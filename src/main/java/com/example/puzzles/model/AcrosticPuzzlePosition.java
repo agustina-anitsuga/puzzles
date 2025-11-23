@@ -7,6 +7,8 @@ public class AcrosticPuzzlePosition implements Position {
     private List<Integer> intersections;
     private List<Integer> intersectingChunk;
 
+    public AcrosticPuzzlePosition(){}
+
     public AcrosticPuzzlePosition(Integer intersection) {
         this.intersections = List.of(intersection);
         this.intersectingChunk = List.of(0);

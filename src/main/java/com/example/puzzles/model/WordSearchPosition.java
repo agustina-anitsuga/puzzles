@@ -1,8 +1,10 @@
 package com.example.puzzles.model;
 
 public class WordSearchPosition implements Position{
-    private final Coordinate coordinate;
-    private final Direction direction;
+    private Coordinate coordinate;
+    private Direction direction;
+
+    public WordSearchPosition(){}
 
     public WordSearchPosition(Coordinate coordinate, Direction direction) {
         this.coordinate = coordinate;

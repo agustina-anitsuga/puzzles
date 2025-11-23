@@ -9,6 +9,8 @@ public class Puzzle {
     private LocalDateTime generation;
     private List<Word> words;
 
+    public Puzzle() {}
+
     public Puzzle(LocalDateTime generation, List<Word> words) {
         this.words = words;
         this.generation = generation;
@@ -23,7 +25,7 @@ public class Puzzle {
     }
 
     public String getName() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss-n");
         return getNameStem() + generation.format(formatter);
     }
 

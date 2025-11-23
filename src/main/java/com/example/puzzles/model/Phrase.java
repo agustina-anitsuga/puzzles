@@ -2,6 +2,9 @@ package com.example.puzzles.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Phrase {
     
     private int id;
@@ -11,6 +14,8 @@ public class Phrase {
     private String author;
     private int distanceBetweenChunks = 0;
     private int longCap = 25;
+
+    public Phrase(){}
 
     public Phrase(int id, String phrase, String source, String author) {
         this.id = id;
