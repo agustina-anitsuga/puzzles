@@ -69,7 +69,7 @@ public class AcrosticPuzzleFileWriter {
         return sb.toString().trim();
     }
 
-    public void generatePuzzleFile(String outputDir, String fileName) throws IOException {
+    public void generatePuzzleFile(String outputDir, String fileName) throws Exception {
         StringBuffer sb = new StringBuffer();
 
         ObjectMapper mapper = new ObjectMapper();
@@ -79,7 +79,7 @@ public class AcrosticPuzzleFileWriter {
             sb.append( mapper.writeValueAsString(puzzle) );
         } catch (JsonProcessingException e) {
             logger.error("Error writing json file: " + fileName + " - " + e.getMessage(), e);
-            throw new RuntimeException(e);
+            throw new Exception(e);
         }
 
         FileUtils.writeToFile(sb.toString(), outputDir, fileName);

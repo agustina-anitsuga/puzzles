@@ -28,7 +28,7 @@ public class AcrosticPuzzleBookGenerator {
     private static final int PHRASE_LONG_CAP = PuzzleProperties.getIntProperty("acrostic.book.puzzle.phrase.long");
 
     public static void main(String[] args) throws Exception {
-        String name = "acrostic-puzzle-book.json";
+        String name = PuzzleProperties.getProperty("acrostic.book.name");
         //new AcrosticPuzzleBookGenerator().generateBook(name);
         new AcrosticPuzzleBookGenerator().regenerateBook(name);
     }
@@ -49,7 +49,7 @@ public class AcrosticPuzzleBookGenerator {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
-        AcrosticPuzzleBook book = mapper.readValue(new File(outputDir+"/"+name), AcrosticPuzzleBook.class);
+        AcrosticPuzzleBook book = mapper.readValue(new File(outputDir,name), AcrosticPuzzleBook.class);
         return book;
     }
 
@@ -82,12 +82,13 @@ public class AcrosticPuzzleBookGenerator {
 
     private List<String> generatePuzzleCluesImages(List<AcrosticPuzzle> puzzles) {
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
+        String suffix = PuzzleProperties.getProperty("acrostic.book.puzzle.suffix.character-clue");
         File imageDir = new File(outputDir);
         imageDir.mkdirs();
         List<String> imagePaths = new ArrayList<>();
         for (int i = 0; i < puzzles.size(); i++) {
             Puzzle puzzle = puzzles.get(i);
-            String imageName = puzzle.getName() + "-character-clue.png";
+            String imageName = puzzle.getName() + suffix;
             String imagePath = new File(imageDir, imageName).getAbsolutePath();
             new AcrosticCharacterCluesImageWriter(puzzle).generate(imageDir.getAbsolutePath(), imageName);
             imagePaths.add(imagePath);
@@ -121,21 +122,23 @@ public class AcrosticPuzzleBookGenerator {
         return puzzles;
     }
 
-    private List<String> generatePuzzleImages(List<AcrosticPuzzle> puzzles) {
+    private List<String> generatePuzzleImages(List<AcrosticPuzzle> puzzles) throws Exception {
         String outputDir = PuzzleProperties.getProperty("puzzles.output.dir");
+        String suffixImage = PuzzleProperties.getProperty("acrostic.book.puzzle.suffix.image");
+        String suffixSolution = PuzzleProperties.getProperty("acrostic.book.puzzle.suffix.image.solution");
         File imageDir = new File(outputDir);
         imageDir.mkdirs();
         List<String> imagePaths = new ArrayList<>();
         for (int i = 0; i < puzzles.size(); i++) {
             AcrosticPuzzle puzzle = puzzles.get(i);
             // generate blank puzzle image
-            String imageName = puzzle.getName() + ".png";
+            String imageName = puzzle.getName() + suffixImage;
             String imagePath = new File(imageDir, imageName).getAbsolutePath();
             AcrosticPuzzleImageWriter iw = new AcrosticPuzzleImageWriter(puzzle);
             iw.generate(imageDir.getAbsolutePath(), imageName, false);
             imagePaths.add(imagePath);
             // generate solution puzzle image
-            imageName = puzzle.getName() + "-sol.png";
+            imageName = puzzle.getName() + suffixSolution;
             iw.generate(imageDir.getAbsolutePath(), imageName, true);
         }
         return imagePaths;

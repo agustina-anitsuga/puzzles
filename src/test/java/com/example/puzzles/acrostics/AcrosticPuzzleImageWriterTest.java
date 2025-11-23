@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AcrosticPuzzleImageWriterTest {
     @Test
-    public void testGenerateImageCreatesFile() {
+    public void testGenerateImageCreatesFile() throws Exception {
         Phrase phrase = new Phrase(1, "abc", "Book", "Author");
         List<Word> words = List.of(
             new Word(1, "apple", "A fruit", new AcrosticPuzzlePosition(0)),

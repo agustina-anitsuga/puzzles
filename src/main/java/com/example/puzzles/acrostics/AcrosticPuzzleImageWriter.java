@@ -18,6 +18,9 @@ import org.apache.logging.log4j.Logger;
 
 public class AcrosticPuzzleImageWriter {
 
+    private static final String FORMAT = "png";
+    private static final String FONT_FAMILY = "Arial";
+
     private static final int GRID_SIZE = 20;
 
     private AcrosticPuzzle puzzle;
@@ -88,7 +91,7 @@ public class AcrosticPuzzleImageWriter {
 
     private void drawLetter(Graphics2D g2d, String letter, int x, int y, int cellSize) {
         g2d.setColor(Color.BLACK);
-        g2d.setFont(new Font("Arial", Font.PLAIN, (int)(cellSize * 0.75) ));
+        g2d.setFont(new Font(FONT_FAMILY, Font.PLAIN, (int)(cellSize * 0.75) ));
         FontMetrics metrics = g2d.getFontMetrics();
         int textX = x + (cellSize - metrics.stringWidth(String.valueOf(letter))) / 3;
         int textY = y + ((cellSize - metrics.getHeight()) / 3) + metrics.getAscent();
@@ -161,7 +164,7 @@ public class AcrosticPuzzleImageWriter {
         }
     }
 
-    public void generate(String path, String fileName, boolean isSolution) {
+    public void generate(String path, String fileName, boolean isSolution) throws Exception {
         Phrase phrase = this.puzzle.getPhrase();
         List<Word> words = this.puzzle.getWords();
 
@@ -177,7 +180,7 @@ public class AcrosticPuzzleImageWriter {
         g2d.fillRect(0, 0, imageWidth, imageHeight);
 
         g2d.setColor(Color.BLACK);
-        g2d.setFont(new Font("Arial", Font.PLAIN, 20));
+        g2d.setFont(new Font(FONT_FAMILY, Font.PLAIN, 20));
 
         int centerColumn = maxToLeft + 2 ;
         drawWords(g2d, phrase, words, centerColumn, cellSize, isSolution);
@@ -196,10 +199,11 @@ public class AcrosticPuzzleImageWriter {
 
         File outputFile = new File(outputDir, fileName);
         try {
-            ImageIO.write(image, "png", outputFile);
+            ImageIO.write(image, FORMAT, outputFile);
             logger.info("Puzzle image generated at: " + outputFile.getAbsolutePath());
         } catch (IOException e) {
             logger.error("Error saving puzzle image: " + e.getMessage(), e);
+            throw new Exception(e);
         }
     }
 }

@@ -12,6 +12,9 @@ import java.util.ArrayList;
 
 public class AcrosticCharacterCluesImageWriter {
 
+    private static final String FONT_FAMILY = "Arial";
+    private static final String FORMAT = "png";
+
     private static final int GRID_WIDTH = 30;
     
     private final Puzzle puzzle;
@@ -37,7 +40,7 @@ public class AcrosticCharacterCluesImageWriter {
 
         g2d.setColor(Color.GRAY);
         g2d.setStroke(new BasicStroke(2));
-        g2d.setFont(new Font("Arial", Font.PLAIN, fontSize));
+        g2d.setFont(new Font(FONT_FAMILY, Font.PLAIN, fontSize));
 
         for (int i = 0; i < chars.size(); i++) {
             int row = i / gridWidth;
@@ -61,7 +64,7 @@ public class AcrosticCharacterCluesImageWriter {
         if (!dir.exists()) dir.mkdirs();
         File file = new File(dir, fileName);
         try {
-            ImageIO.write(image, "png", file);
+            ImageIO.write(image, FORMAT, file);
         } catch (IOException e) {
             e.printStackTrace();
         }
