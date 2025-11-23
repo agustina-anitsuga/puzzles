@@ -29,8 +29,8 @@ public class AcrosticPuzzleBookGenerator {
 
     public static void main(String[] args) throws Exception {
         String name = PuzzleProperties.getProperty("acrostic.book.name");
-        //new AcrosticPuzzleBookGenerator().generateBook(name);
-        new AcrosticPuzzleBookGenerator().regenerateBook(name);
+        new AcrosticPuzzleBookGenerator().generateBook(name);
+        //new AcrosticPuzzleBookGenerator().regenerateBook(name);
     }
 
     public AcrosticPuzzleBook regenerateBook(String name) throws Exception {

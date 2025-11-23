@@ -13,7 +13,6 @@ import org.apache.poi.util.Units;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.List;
 
 public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
@@ -104,30 +103,20 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         cluesRun.setFontSize(NORMAL_TEXT_FONT_SIZE);
         List<Word> words = puzzle.getWords();
 
-        // Create a numbered list for the clues
-        XWPFNumbering numbering = doc.createNumbering();
-        org.openxmlformats.schemas.wordprocessingml.x2006.main.CTAbstractNum ctAbstractNum = org.openxmlformats.schemas.wordprocessingml.x2006.main.CTAbstractNum.Factory.newInstance();
-        org.openxmlformats.schemas.wordprocessingml.x2006.main.CTLvl lvl = ctAbstractNum.addNewLvl();
-        lvl.setIlvl(BigInteger.ZERO);
-        lvl.addNewNumFmt().setVal(org.openxmlformats.schemas.wordprocessingml.x2006.main.STNumberFormat.DECIMAL);
-        lvl.addNewLvlText().setVal("%1.");
-        lvl.addNewStart().setVal(BigInteger.ONE); // Start at 1
-        ctAbstractNum.setAbstractNumId(BigInteger.valueOf(0));
-        XWPFAbstractNum abstractNum = new XWPFAbstractNum(ctAbstractNum);
-        BigInteger abstractNumID = numbering.addAbstractNum(abstractNum);
-        BigInteger numId = numbering.addNum(abstractNumID);
+        // Create a simple manual numbered list so numbering restarts at 1 for each puzzle
+        int wordNum = 1;
         for (Word word : words) {
             XWPFParagraph para = doc.createParagraph();
-            para.setNumID(numId);
+            para.setAlignment(ParagraphAlignment.LEFT);
 
-            // Set a hanging indent 
+            // Set a hanging indent
             para.setIndentationLeft(600);
             para.setIndentationHanging(600);
 
             XWPFRun run = para.createRun();
             run.setFontFamily(FONT_FAMILY);
             run.setFontSize(NORMAL_TEXT_FONT_SIZE);
-            run.setText(word.getDefinition());
+            run.setText((wordNum++) + ". " + word.getDefinition());
         }
         cluesRun.addBreak();
     }
