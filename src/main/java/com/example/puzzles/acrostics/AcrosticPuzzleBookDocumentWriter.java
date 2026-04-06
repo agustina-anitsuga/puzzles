@@ -46,6 +46,8 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
     private static final int GRID_CELL_WIDTH_TWIPS = 400; 
     private static final int GRID_ROW_HEIGHT = 200; 
 
+    private boolean hasSolution = false;
+
     public XWPFDocument createDocument(List<AcrosticPuzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
         XWPFDocument doc = super.createDocument();
         addPuzzlePages(doc, puzzles, imagePaths, clueImagePaths);
@@ -78,7 +80,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
     private void addCharacterClues(XWPFDocument doc, Puzzle puzzle, String cluesImagePath) {
         
         List<Character> characters = ((AcrosticPuzzle)puzzle).getSortedCharacters();
-        int columnsPerRow = 30;
+        int columnsPerRow = 25;
 
         if (doc == null || characters == null || characters.isEmpty() || columnsPerRow <= 0) {
             return;
@@ -256,6 +258,9 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             XWPFTableRow row = table.getRow(i);
             row.setHeight(GRID_ROW_HEIGHT); // Same height for all puzzles
 
+            Set<Integer> wordCellColumns = new HashSet<>();
+            Set<Integer> numberColumns = new HashSet<>();
+
             // Get intersection index for this word
             int intersectionIdx = -1;
             int chunkIdx = 0;
@@ -289,6 +294,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
                     numRun.setBold(true);
                     numRun.setFontSize(NUMBER_FONT_SIZE);
                     setNoCellBorders(numCell); // Number cells have no borders
+                    numberColumns.add(tableNumberCol);
                 }
 
                 // Fill in the word's letters
@@ -301,12 +307,14 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
                         setCellVerticalCenter(cell);
                         XWPFParagraph para = cell.getParagraphs().get(0);
                         XWPFRun run = para.createRun();
-                        run.setText(String.valueOf(wordStr.charAt(j)));
+                        if (hasSolution) {
+                            run.setText(String.valueOf(wordStr.charAt(j)));
+                        }
                         // Bold the intersecting letter
                         if (j == intersectionIdx) {
                             run.setBold(true);
                         }
-                        setCellBorders(cell); // Letter cells have borders
+                        wordCellColumns.add(tableLetterCol);
                     }
                 }
             }
@@ -316,20 +324,17 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
                 XWPFTableCell cell = row.getCell(c);
                 setCellWidth(cell, cellWidthTwips);
                 setCellVerticalCenter(cell);
-                // Check if cell has content
-                String cellText = cell.getText().trim();
-                if (cellText.isEmpty()) {
-                    setNoCellBorders(cell); // Empty cells have no borders
-                } else if (cellText.matches("\\d+")) {
+                if (numberColumns.contains(c)) {
                     setNoCellBorders(cell); // Number cells have no borders
-                } else {
-                    // Check if this cell is in any phrase column
-                        int actualCol = c;
+                } else if (wordCellColumns.contains(c)) {
+                    int actualCol = c;
                     if (phraseColumns.contains(actualCol)) {
                         setBoldCellBorders(cell); // Phrase column cells have bold borders
                     } else {
-                        setCellBorders(cell); // Other cells with content have normal borders
+                        setCellBorders(cell); // Word cells have normal borders
                     }
+                } else {
+                    setNoCellBorders(cell); // Empty cells remain borderless
                 }
             }
         }
