@@ -33,7 +33,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
     
@@ -63,10 +65,14 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
 
     private void addPuzzlePage(XWPFDocument doc, AcrosticPuzzle puzzle, String imagePath, String clueImagePath, int puzzleNumber) throws Exception {
         addPuzzleTitle(doc, puzzle, puzzleNumber);
-        addPuzzleImage(doc, imagePath);
+        //addPuzzleImage(doc, imagePath);
+        addPuzzleGridTable(doc, puzzle);
         addClues(doc, puzzle);
         addCharacterClues(doc, puzzle, clueImagePath);
-        addPuzzleGridTable(doc, puzzle);
+        addPageBreak(doc);
+    }
+
+    private void addPageBreak(XWPFDocument doc) {
         XWPFParagraph pageBreak = doc.createParagraph();
         pageBreak.setPageBreak(true);
     }
@@ -183,6 +189,14 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         String phraseString = phraseChunks.get(0);
         int centerColumn = phraseString.length() / 2; // Center the phrase
 
+        // Calculate phrase columns (all columns that contain phrase letters)
+        Set<Integer> phraseColumns = new HashSet<>();
+        phraseColumns.add(centerColumn); // First chunk
+        if (phraseChunks.size() > 1) {
+            int secondChunkColumn = centerColumn + phrase.getDistanceBetweenChunks();
+            phraseColumns.add(secondChunkColumn); // Second chunk
+        }
+
         // Calculate the table dimensions
         int minCol = Integer.MAX_VALUE;
         int maxCol = Integer.MIN_VALUE;
@@ -193,9 +207,12 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             Position pos = word.getPosition();
             if (pos instanceof com.example.puzzles.model.AcrosticPuzzlePosition) {
                 List<Integer> intersections = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersections();
-                if (intersections != null && !intersections.isEmpty()) {
+                List<Integer> intersectingChunks = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersectingChunk();
+                if (intersections != null && !intersections.isEmpty() && intersectingChunks != null && !intersectingChunks.isEmpty()) {
                     int intersectionIdx = intersections.get(0);
-                    int wordStartCol = centerColumn - intersectionIdx;
+                    int chunkIdx = intersectingChunks.get(0);
+                    int chunkStartCol = (chunkIdx == 0) ? centerColumn : (centerColumn + phrase.getDistanceBetweenChunks());
+                    int wordStartCol = chunkStartCol - intersectionIdx;
                     int wordEndCol = wordStartCol + word.getWord().length() - 1;
                     minCol = Math.min(minCol, wordStartCol - 1); // -1 for number column
                     maxCol = Math.max(maxCol, wordEndCol);
@@ -242,16 +259,22 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
 
             // Get intersection index for this word
             int intersectionIdx = -1;
+            int chunkIdx = 0;
             Position pos = word.getPosition();
             if (pos instanceof com.example.puzzles.model.AcrosticPuzzlePosition) {
                 List<Integer> intersections = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersections();
+                List<Integer> intersectingChunks = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersectingChunk();
                 if (intersections != null && !intersections.isEmpty()) {
                     intersectionIdx = intersections.get(0);
+                }
+                if (intersectingChunks != null && !intersectingChunks.isEmpty()) {
+                    chunkIdx = intersectingChunks.get(0);
                 }
             }
 
             if (intersectionIdx >= 0) {
-                int wordStartCol = centerColumn - intersectionIdx;
+                int chunkStartCol = (chunkIdx == 0) ? centerColumn : (centerColumn + phrase.getDistanceBetweenChunks());
+                int wordStartCol = chunkStartCol - intersectionIdx;
                 int numberCol = wordStartCol - 1;
 
                 // Place the number
@@ -296,8 +319,16 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
                 String cellText = cell.getText().trim();
                 if (cellText.isEmpty()) {
                     setNoCellBorders(cell); // Empty cells have no borders
+                } else if (cellText.matches("\\d+")) {
+                    setNoCellBorders(cell); // Number cells have no borders
                 } else {
-                    setCellBorders(cell); // Cells with content have borders
+                    // Check if this cell is in any phrase column
+                    int actualCol = c + minCol;
+                    if (phraseColumns.contains(actualCol)) {
+                        setBoldCellBorders(cell); // Phrase column cells have bold borders
+                    } else {
+                        setCellBorders(cell); // Other cells with content have normal borders
+                    }
                 }
             }
         }
@@ -408,9 +439,44 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         right.setColor(BORDER_COLOR);
     }
 
+    private static void setBoldCellBorders(XWPFTableCell cell) {
+        CTTc cttc = cell.getCTTc();
+        CTTcPr tcPr = cttc.isSetTcPr() ? cttc.getTcPr() : cttc.addNewTcPr();
+        CTTcBorders borders = tcPr.isSetTcBorders() ? tcPr.getTcBorders() : tcPr.addNewTcBorders();
+
+        // Top border - bolder
+        CTBorder top = borders.isSetTop() ? borders.getTop() : borders.addNewTop();
+        top.setVal(STBorder.SINGLE);
+        top.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 16L)); // Double thickness
+        top.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        top.setColor(BORDER_COLOR);
+
+        // Bottom border - bolder
+        CTBorder bottom = borders.isSetBottom() ? borders.getBottom() : borders.addNewBottom();
+        bottom.setVal(STBorder.SINGLE);
+        bottom.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 16L)); // Double thickness
+        bottom.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        bottom.setColor(BORDER_COLOR);
+
+        // Left border - bolder
+        CTBorder left = borders.isSetLeft() ? borders.getLeft() : borders.addNewLeft();
+        left.setVal(STBorder.SINGLE);
+        left.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 16L)); // Double thickness
+        left.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        left.setColor(BORDER_COLOR);
+
+        // Right border - bolder
+        CTBorder right = borders.isSetRight() ? borders.getRight() : borders.addNewRight();
+        right.setVal(STBorder.SINGLE);
+        right.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 16L)); // Double thickness
+        right.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        right.setColor(BORDER_COLOR);
+    }
+
     private void addClues(XWPFDocument doc, Puzzle puzzle) {
         // Write the label in a different font and size
         XWPFParagraph labelParagraph = doc.createParagraph();
+        labelParagraph.setSpacingBefore(PARAGRAPH_SPACING);
         labelParagraph.setSpacingAfter(PARAGRAPH_SPACING);
 
         XWPFRun labelRun = labelParagraph.createRun();
@@ -435,40 +501,6 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             run.setFontFamily(FONT_FAMILY);
             run.setFontSize(NORMAL_TEXT_FONT_SIZE);
             run.setText((wordNum++) + ". " + word.getDefinition());
-        }
-    }
-
-    private void addPuzzleImage(XWPFDocument doc, String imagePath)
-            throws InvalidFormatException, IOException, FileNotFoundException {
-        // Insert image with aspect ratio preserved, max width 7 inches
-        try (FileInputStream is = new FileInputStream(imagePath)) {
-            javax.imageio.ImageIO.setUseCache(false);
-            java.awt.image.BufferedImage bimg = javax.imageio.ImageIO.read(new java.io.File(imagePath));
-            int widthInPixels = bimg.getWidth();
-            int heightInPixels = bimg.getHeight();
-            int DPI = 96;
-            int widthInInches = widthInPixels / DPI;
-            int heightInInches = heightInPixels / DPI;
-            int widthInEmu = Units.toEMU(widthInPixels);
-            int heightInEmu = Units.toEMU(heightInPixels);
-            double maxWidthInInches = 4;
-            double maxHeightInInches = 6;
-            double scaleWidth = 1;
-            double scaleHeight = 1;
-            if (widthInInches > maxWidthInInches) {
-                scaleWidth = (double) maxWidthInInches / widthInInches;
-            }
-            if(heightInInches > maxHeightInInches){
-                scaleHeight = (double) maxHeightInInches / heightInInches;
-            }
-            double scale = Math.min(scaleWidth, scaleHeight);
-            widthInEmu = Units.toEMU(widthInPixels * scale);
-            heightInEmu = Units.toEMU(heightInPixels * scale);
-            XWPFParagraph imgPara = doc.createParagraph();
-            imgPara.setAlignment(ParagraphAlignment.LEFT);
-            XWPFRun imgRun = imgPara.createRun();
-            imgRun.addPicture(is, Document.PICTURE_TYPE_PNG, imagePath, widthInEmu, heightInEmu);
-            imgRun.addBreak(BreakType.PAGE); // Add page break after the image
         }
     }
 
