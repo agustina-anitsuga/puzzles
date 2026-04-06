@@ -552,9 +552,14 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             solParaRun.setText(PuzzleProperties.getProperty("label.words")+": ");
             solParaRun.addBreak();
             // Numbered bullet list for words
-            int wordNum = 1;
-            for (Word word : puzzle.getWords()) {
-                solParaRun.setText(wordNum++ + ". " + word.getWord() + "; ");
+            List<Word> words = puzzle.getWords();
+            for (int j = 0; j < words.size(); j++) {
+                Word word = words.get(j);
+                String text = (j + 1) + ". " + word.getWord();
+                if (j < words.size() - 1) {
+                    text += "; ";
+                }
+                solParaRun.setText(text);
             }
             solParaRun.addBreak();
         }
