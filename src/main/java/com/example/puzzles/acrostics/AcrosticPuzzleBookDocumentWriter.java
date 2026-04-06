@@ -3,6 +3,8 @@ package com.example.puzzles.acrostics;
 import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Puzzle;
 import com.example.puzzles.model.Word;
+import com.example.puzzles.model.Phrase;
+import com.example.puzzles.model.Position;
 import com.example.puzzles.tools.PuzzleProperties;
 import com.example.puzzles.tools.BookDocumentWriter;
 
@@ -64,6 +66,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         addPuzzleImage(doc, imagePath);
         addClues(doc, puzzle);
         addCharacterClues(doc, puzzle, clueImagePath);
+        addPuzzleGridTable(doc, puzzle);
         XWPFParagraph pageBreak = doc.createParagraph();
         pageBreak.setPageBreak(true);
     }
@@ -165,6 +168,140 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
 
         XWPFParagraph after = doc.createParagraph();
         after.setSpacingAfter(200);
+    }
+
+    /**
+     * Adds a table to the Word document representing the puzzle grid, similar to the image grid.
+     * Each row is a word, positioned so the intersecting letter aligns with the phrase.
+     * The phrase is shown vertically in a separate table.
+     */
+    private void addPuzzleGridTable(XWPFDocument doc, AcrosticPuzzle puzzle) {
+        List<Word> words = puzzle.getWords();
+        Phrase phrase = puzzle.getPhrase();
+        List<String> phraseChunks = phrase.getChunks();
+        // For simplicity, use the first chunk (most puzzles have one chunk)
+        String phraseString = phraseChunks.get(0);
+        int centerColumn = phraseString.length() / 2; // Center the phrase
+
+        // Calculate the table dimensions
+        int minCol = Integer.MAX_VALUE;
+        int maxCol = Integer.MIN_VALUE;
+        int numRows = words.size();
+
+        // First pass: determine column range
+        for (Word word : words) {
+            Position pos = word.getPosition();
+            if (pos instanceof com.example.puzzles.model.AcrosticPuzzlePosition) {
+                List<Integer> intersections = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersections();
+                if (intersections != null && !intersections.isEmpty()) {
+                    int intersectionIdx = intersections.get(0);
+                    int wordStartCol = centerColumn - intersectionIdx;
+                    int wordEndCol = wordStartCol + word.getWord().length() - 1;
+                    minCol = Math.min(minCol, wordStartCol - 1); // -1 for number column
+                    maxCol = Math.max(maxCol, wordEndCol);
+                }
+            }
+        }
+
+        int numCols = maxCol - minCol + 1;
+
+        // Create the table for words
+        XWPFTable table = doc.createTable(numRows, numCols);
+        table.setTableAlignment(TableRowAlign.LEFT);
+
+        // Set up table formatting like in addCharacterClues
+        CTTbl ctTbl = table.getCTTbl();
+        CTTblPr tblPr = ctTbl.getTblPr() != null ? ctTbl.getTblPr() : ctTbl.addNewTblPr();
+
+        CTTblWidth tblW = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
+        tblW.setType(STTblWidth.DXA);
+        tblW.setW(BigInteger.valueOf(9000));
+
+        clearTableBorders(tblPr);
+
+        CTTblLayoutType layoutType = tblPr.isSetTblLayout() ? tblPr.getTblLayout() : tblPr.addNewTblLayout();
+        layoutType.setType(STTblLayoutType.FIXED);
+
+        int cellWidthTwips = 320;
+
+        CTTblGrid grid = ctTbl.getTblGrid() != null ? ctTbl.getTblGrid() : ctTbl.addNewTblGrid();
+        while (grid.sizeOfGridColArray() > 0) {
+            grid.removeGridCol(0);
+        }
+
+        for (int c = 0; c < numCols; c++) {
+            CTTblGridCol gridCol = grid.addNewGridCol();
+            gridCol.setW(BigInteger.valueOf(cellWidthTwips));
+        }
+
+        for (int i = 0; i < words.size(); i++) {
+            Word word = words.get(i);
+            String wordStr = word.getWord();
+            XWPFTableRow row = table.getRow(i);
+            row.setHeight(340); // Same height as in addCharacterClues
+
+            // Get intersection index for this word
+            int intersectionIdx = -1;
+            Position pos = word.getPosition();
+            if (pos instanceof com.example.puzzles.model.AcrosticPuzzlePosition) {
+                List<Integer> intersections = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersections();
+                if (intersections != null && !intersections.isEmpty()) {
+                    intersectionIdx = intersections.get(0);
+                }
+            }
+
+            if (intersectionIdx >= 0) {
+                int wordStartCol = centerColumn - intersectionIdx;
+                int numberCol = wordStartCol - 1;
+
+                // Place the number
+                int tableNumberCol = numberCol - minCol;
+                if (tableNumberCol >= 0 && tableNumberCol < numCols) {
+                    XWPFTableCell numCell = row.getCell(tableNumberCol);
+                    setCellWidth(numCell, cellWidthTwips);
+                    setCellVerticalCenter(numCell);
+                    XWPFParagraph numPara = numCell.getParagraphs().get(0);
+                    XWPFRun numRun = numPara.createRun();
+                    numRun.setText(String.valueOf(i + 1));
+                    numRun.setBold(true);
+                    setNoCellBorders(numCell); // Number cells have no borders
+                }
+
+                // Fill in the word's letters
+                for (int j = 0; j < wordStr.length(); j++) {
+                    int letterCol = wordStartCol + j;
+                    int tableLetterCol = letterCol - minCol;
+                    if (tableLetterCol >= 0 && tableLetterCol < numCols) {
+                        XWPFTableCell cell = row.getCell(tableLetterCol);
+                        setCellWidth(cell, cellWidthTwips);
+                        setCellVerticalCenter(cell);
+                        XWPFParagraph para = cell.getParagraphs().get(0);
+                        XWPFRun run = para.createRun();
+                        run.setText(String.valueOf(wordStr.charAt(j)));
+                        // Bold the intersecting letter
+                        if (j == intersectionIdx) {
+                            run.setBold(true);
+                        }
+                        setCellBorders(cell); // Letter cells have borders
+                    }
+                }
+            }
+
+            // Set formatting for all cells in this row, including empty ones
+            for (int c = 0; c < numCols; c++) {
+                XWPFTableCell cell = row.getCell(c);
+                setCellWidth(cell, cellWidthTwips);
+                setCellVerticalCenter(cell);
+                // Check if cell has content
+                String cellText = cell.getText().trim();
+                if (cellText.isEmpty()) {
+                    setNoCellBorders(cell); // Empty cells have no borders
+                } else {
+                    setCellBorders(cell); // Cells with content have borders
+                }
+            }
+        }
+
     }
 
     private void setNoCellBorders(XWPFTableCell cell) {
