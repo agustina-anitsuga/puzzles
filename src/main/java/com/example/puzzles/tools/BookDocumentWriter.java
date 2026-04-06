@@ -53,7 +53,7 @@ public class BookDocumentWriter {
         run.setFontFamily(FONT_FAMILY);
         run.setBold(true);
         run.setFontSize(BOOK_TITLE_FONT_SIZE);
-        run.setText("DON’T PANIC");
+        run.setText(PuzzleProperties.getProperty("label.bookSeriesName"));
         run.addBreak();
         run.addBreak();
         XWPFRun subtitle = title.createRun();

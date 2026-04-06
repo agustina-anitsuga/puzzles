@@ -27,12 +27,12 @@ public class AcrosticPuzzleFileWriter {
     public void generateClueFile(String outputDir, String fileName) throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append(PuzzleProperties.getProperty("label.clues"));
-        sb.append("\n\n");
+        sb.append("\n");
         int i = 1;
         for (Word word : puzzle.getWords()) {
             sb.append(i++).append(". ").append(word.getDefinition()).append("\n");
         }
-        sb.append("\n");
+        sb.append("\n\n");
         sb.append(PuzzleProperties.getProperty("label.characters"));
         sb.append("\n\n");
         sb.append(getSortedCharacters());
