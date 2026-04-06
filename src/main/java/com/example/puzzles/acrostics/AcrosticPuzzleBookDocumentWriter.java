@@ -36,11 +36,15 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
     private static final int PARAGRAPH_SPACING = 400;
     private static final String FONT_FAMILY = "Georgia";
     private static final int NORMAL_TEXT_FONT_SIZE = 10;
+    private static final int NUMBER_FONT_SIZE = 8;
     private static final int SECTION_TITLE_FONT_SIZE = 16;
     private static final int PAGE_TITLE_FONT_SIZE = 12;
     private static final String BORDER_COLOR = "808080";
     private static final int BORDER_THICKNESS_POINTS = 1;
     private static final int BORDER_SPACING = 0;
+    private static final int GRID_COLUMNS = 20;
+    private static final int GRID_CELL_WIDTH_TWIPS = 400; 
+    private static final int GRID_ROW_HEIGHT = 200; 
 
     public XWPFDocument createDocument(List<AcrosticPuzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
         XWPFDocument doc = super.createDocument();
@@ -107,16 +111,15 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         CTTbl ctTbl = table.getCTTbl();
         CTTblPr tblPr = ctTbl.getTblPr() != null ? ctTbl.getTblPr() : ctTbl.addNewTblPr();
 
+        int cellWidthTwips = GRID_CELL_WIDTH_TWIPS;
         CTTblWidth tblW = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
         tblW.setType(STTblWidth.DXA);
-        tblW.setW(BigInteger.valueOf(9000));
+        tblW.setW(BigInteger.valueOf((long) cellWidthTwips * colCount));
 
         clearTableBorders(tblPr);
 
         CTTblLayoutType layoutType = tblPr.isSetTblLayout() ? tblPr.getTblLayout() : tblPr.addNewTblLayout();
         layoutType.setType(STTblLayoutType.FIXED);
-
-        int cellWidthTwips = 320;
 
         CTTblGrid grid = ctTbl.getTblGrid() != null ? ctTbl.getTblGrid() : ctTbl.addNewTblGrid();
         while (grid.sizeOfGridColArray() > 0) {
@@ -130,7 +133,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
 
         for (int r = 0; r < rowCount; r++) {
             XWPFTableRow row = table.getRow(r);
-            row.setHeight(340);
+            row.setHeight(272);
 
             List<Character> rowChars = rows.get(r);
 
@@ -179,42 +182,44 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         List<Word> words = puzzle.getWords();
         Phrase phrase = puzzle.getPhrase();
         List<String> phraseChunks = phrase.getChunks();
-        // For simplicity, use the first chunk (most puzzles have one chunk)
-        String phraseString = phraseChunks.get(0);
-        int centerColumn = phraseString.length() / 2; // Center the phrase
-
-        // Calculate phrase columns (all columns that contain phrase letters)
-        Set<Integer> phraseColumns = new HashSet<>();
-        phraseColumns.add(centerColumn); // First chunk
-        if (phraseChunks.size() > 1) {
-            int secondChunkColumn = centerColumn + phrase.getDistanceBetweenChunks();
-            phraseColumns.add(secondChunkColumn); // Second chunk
-        }
-
-        // Calculate the table dimensions
-        int minCol = Integer.MAX_VALUE;
-        int maxCol = Integer.MIN_VALUE;
+        // Calculate the table dimensions with a fixed minimum width
         int numRows = words.size();
+        int numCols = GRID_COLUMNS;
+        int phraseCenter;
+        Set<Integer> phraseColumns = new HashSet<>();
 
-        // First pass: determine column range
-        for (Word word : words) {
-            Position pos = word.getPosition();
-            if (pos instanceof com.example.puzzles.model.AcrosticPuzzlePosition) {
-                List<Integer> intersections = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersections();
-                List<Integer> intersectingChunks = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersectingChunk();
-                if (intersections != null && !intersections.isEmpty() && intersectingChunks != null && !intersectingChunks.isEmpty()) {
-                    int intersectionIdx = intersections.get(0);
-                    int chunkIdx = intersectingChunks.get(0);
-                    int chunkStartCol = (chunkIdx == 0) ? centerColumn : (centerColumn + phrase.getDistanceBetweenChunks());
-                    int wordStartCol = chunkStartCol - intersectionIdx;
-                    int wordEndCol = wordStartCol + word.getWord().length() - 1;
-                    minCol = Math.min(minCol, wordStartCol - 1); // -1 for number column
-                    maxCol = Math.max(maxCol, wordEndCol);
+        while (true) {
+            phraseCenter = numCols / 2;
+            int minUsed = Integer.MAX_VALUE;
+            int maxUsed = Integer.MIN_VALUE;
+            for (Word word : words) {
+                Position pos = word.getPosition();
+                if (pos instanceof com.example.puzzles.model.AcrosticPuzzlePosition) {
+                    List<Integer> intersections = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersections();
+                    List<Integer> intersectingChunks = ((com.example.puzzles.model.AcrosticPuzzlePosition) pos).getIntersectingChunk();
+                    if (intersections != null && !intersections.isEmpty() && intersectingChunks != null && !intersectingChunks.isEmpty()) {
+                        int intersectionIdx = intersections.get(0);
+                        int chunkIdx = intersectingChunks.get(0);
+                        int chunkStartCol = (chunkIdx == 0) ? phraseCenter : (phraseCenter + phrase.getDistanceBetweenChunks());
+                        int wordStartCol = chunkStartCol - intersectionIdx;
+                        int wordEndCol = wordStartCol + word.getWord().length() - 1;
+                        minUsed = Math.min(minUsed, wordStartCol - 1); // include number cell
+                        maxUsed = Math.max(maxUsed, wordEndCol);
+                    }
                 }
             }
+            int neededCols = maxUsed - minUsed + 1;
+            if (neededCols <= numCols) {
+                break;
+            }
+            numCols = neededCols;
         }
 
-        int numCols = maxCol - minCol + 1;
+        phraseColumns.clear();
+        phraseColumns.add(phraseCenter);
+        if (phraseChunks.size() > 1) {
+            phraseColumns.add(phraseCenter + phrase.getDistanceBetweenChunks());
+        }
 
         // Create the table for words
         XWPFTable table = doc.createTable(numRows, numCols);
@@ -226,14 +231,14 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
 
         CTTblWidth tblW = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
         tblW.setType(STTblWidth.DXA);
-        tblW.setW(BigInteger.valueOf(9000));
+        tblW.setW(BigInteger.valueOf((long) GRID_CELL_WIDTH_TWIPS * numCols));
 
         clearTableBorders(tblPr);
 
         CTTblLayoutType layoutType = tblPr.isSetTblLayout() ? tblPr.getTblLayout() : tblPr.addNewTblLayout();
         layoutType.setType(STTblLayoutType.FIXED);
 
-        int cellWidthTwips = 320;
+        int cellWidthTwips = GRID_CELL_WIDTH_TWIPS;
 
         CTTblGrid grid = ctTbl.getTblGrid() != null ? ctTbl.getTblGrid() : ctTbl.addNewTblGrid();
         while (grid.sizeOfGridColArray() > 0) {
@@ -249,7 +254,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             Word word = words.get(i);
             String wordStr = word.getWord();
             XWPFTableRow row = table.getRow(i);
-            row.setHeight(340); // Same height as in addCharacterClues
+            row.setHeight(GRID_ROW_HEIGHT); // Same height for all puzzles
 
             // Get intersection index for this word
             int intersectionIdx = -1;
@@ -267,12 +272,12 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             }
 
             if (intersectionIdx >= 0) {
-                int chunkStartCol = (chunkIdx == 0) ? centerColumn : (centerColumn + phrase.getDistanceBetweenChunks());
+                int chunkStartCol = (chunkIdx == 0) ? phraseCenter : (phraseCenter + phrase.getDistanceBetweenChunks());
                 int wordStartCol = chunkStartCol - intersectionIdx;
                 int numberCol = wordStartCol - 1;
 
                 // Place the number
-                int tableNumberCol = numberCol - minCol;
+                int tableNumberCol = numberCol;
                 if (tableNumberCol >= 0 && tableNumberCol < numCols) {
                     XWPFTableCell numCell = row.getCell(tableNumberCol);
                     setCellWidth(numCell, cellWidthTwips);
@@ -280,14 +285,16 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
                     XWPFParagraph numPara = numCell.getParagraphs().get(0);
                     XWPFRun numRun = numPara.createRun();
                     numRun.setText(String.valueOf(i + 1));
+                    numRun.setFontFamily(FONT_FAMILY);
                     numRun.setBold(true);
+                    numRun.setFontSize(NUMBER_FONT_SIZE);
                     setNoCellBorders(numCell); // Number cells have no borders
                 }
 
                 // Fill in the word's letters
                 for (int j = 0; j < wordStr.length(); j++) {
                     int letterCol = wordStartCol + j;
-                    int tableLetterCol = letterCol - minCol;
+                    int tableLetterCol = letterCol;
                     if (tableLetterCol >= 0 && tableLetterCol < numCols) {
                         XWPFTableCell cell = row.getCell(tableLetterCol);
                         setCellWidth(cell, cellWidthTwips);
@@ -317,7 +324,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
                     setNoCellBorders(cell); // Number cells have no borders
                 } else {
                     // Check if this cell is in any phrase column
-                    int actualCol = c + minCol;
+                        int actualCol = c;
                     if (phraseColumns.contains(actualCol)) {
                         setBoldCellBorders(cell); // Phrase column cells have bold borders
                     } else {
