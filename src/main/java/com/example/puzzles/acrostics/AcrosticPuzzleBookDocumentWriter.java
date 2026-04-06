@@ -13,12 +13,16 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblGridCol;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblLayoutType;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblWidth;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblLayoutType;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTc;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTVerticalJc;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STVerticalJc;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTcBorders;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBorder;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.util.Units;
 
@@ -31,10 +35,14 @@ import java.util.List;
 
 public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
     
+    private static final int PARAGRAPH_SPACING = 400;
     private static final String FONT_FAMILY = "Georgia";
-    private static final int NORMAL_TEXT_FONT_SIZE = 12;
-    private static final int SECTION_TITLE_FONT_SIZE = 18;
-    private static final int PAGE_TITLE_FONT_SIZE = 14;
+    private static final int NORMAL_TEXT_FONT_SIZE = 10;
+    private static final int SECTION_TITLE_FONT_SIZE = 16;
+    private static final int PAGE_TITLE_FONT_SIZE = 12;
+    private static final String BORDER_COLOR = "808080";
+    private static final int BORDER_THICKNESS_POINTS = 1;
+    private static final int BORDER_SPACING = 0;
 
     public XWPFDocument createDocument(List<AcrosticPuzzle> puzzles, List<String> imagePaths, List<String> clueImagePaths) throws Exception {
         XWPFDocument doc = super.createDocument();
@@ -56,12 +64,14 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         addPuzzleImage(doc, imagePath);
         addClues(doc, puzzle);
         addCharacterClues(doc, puzzle, clueImagePath);
+        XWPFParagraph pageBreak = doc.createParagraph();
+        pageBreak.setPageBreak(true);
     }
 
     private void addCharacterClues(XWPFDocument doc, Puzzle puzzle, String cluesImagePath) {
         
         List<Character> characters = ((AcrosticPuzzle)puzzle).getSortedCharacters();
-        int columnsPerRow = 25;
+        int columnsPerRow = 30;
 
         if (doc == null || characters == null || characters.isEmpty() || columnsPerRow <= 0) {
             return;
@@ -80,11 +90,13 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
 
         XWPFParagraph title = doc.createParagraph();
         title.setAlignment(ParagraphAlignment.LEFT);
+        title.setSpacingBefore(PARAGRAPH_SPACING);
 
         XWPFRun titleRun = title.createRun();
-        titleRun.setText("Characters");
+        titleRun.setText(PuzzleProperties.getProperty("label.characters"));
         titleRun.setBold(true);
-        titleRun.setFontSize(12);
+        titleRun.setFontFamily(FONT_FAMILY);
+        titleRun.setFontSize(PAGE_TITLE_FONT_SIZE);
 
         XWPFTable table = doc.createTable(rowCount, colCount);
         table.setTableAlignment(TableRowAlign.LEFT);
@@ -95,6 +107,8 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         CTTblWidth tblW = tblPr.isSetTblW() ? tblPr.getTblW() : tblPr.addNewTblW();
         tblW.setType(STTblWidth.DXA);
         tblW.setW(BigInteger.valueOf(9000));
+
+        clearTableBorders(tblPr);
 
         CTTblLayoutType layoutType = tblPr.isSetTblLayout() ? tblPr.getTblLayout() : tblPr.addNewTblLayout();
         layoutType.setType(STTblLayoutType.FIXED);
@@ -110,13 +124,6 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             CTTblGridCol gridCol = grid.addNewGridCol();
             gridCol.setW(BigInteger.valueOf(cellWidthTwips));
         }
-
-        table.setInsideHBorder(XWPFTable.XWPFBorderType.SINGLE, 4, 0, "808080");
-        table.setInsideVBorder(XWPFTable.XWPFBorderType.SINGLE, 4, 0, "808080");
-        table.setTopBorder(XWPFTable.XWPFBorderType.SINGLE, 4, 0, "808080");
-        table.setBottomBorder(XWPFTable.XWPFBorderType.SINGLE, 4, 0, "808080");
-        table.setLeftBorder(XWPFTable.XWPFBorderType.SINGLE, 4, 0, "808080");
-        table.setRightBorder(XWPFTable.XWPFBorderType.SINGLE, 4, 0, "808080");
 
         for (int r = 0; r < rowCount; r++) {
             XWPFTableRow row = table.getRow(r);
@@ -135,6 +142,12 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
                 setCellWidth(cell, cellWidthTwips);
                 setCellVerticalCenter(cell);
 
+                if (!value.isEmpty()) {
+                    setCellBorders(cell);
+                } else {
+                    setNoCellBorders(cell);
+                }
+
                 while (cell.getParagraphs().size() > 0) {
                     cell.removeParagraph(0);
                 }
@@ -144,15 +157,33 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
 
                 XWPFRun run = p.createRun();
                 run.setText(value);
-                run.setFontFamily("Calibri");
-                run.setFontSize(10);
+                run.setFontFamily(FONT_FAMILY);
+                run.setFontSize(NORMAL_TEXT_FONT_SIZE);
 
-                cell.setColor("F2F2F2");
             }
         }
 
         XWPFParagraph after = doc.createParagraph();
         after.setSpacingAfter(200);
+    }
+
+    private void setNoCellBorders(XWPFTableCell cell) {
+        // For empty cells, we can choose to have no borders or very light borders
+        CTTc cttc = cell.getCTTc();
+        CTTcPr tcPr = cttc.isSetTcPr() ? cttc.getTcPr() : cttc.addNewTcPr();
+        CTTcBorders borders = tcPr.isSetTcBorders() ? tcPr.getTcBorders() : tcPr.addNewTcBorders();
+
+        CTBorder top = borders.isSetTop() ? borders.getTop() : borders.addNewTop();
+        top.setVal(STBorder.NONE);
+
+        CTBorder bottom = borders.isSetBottom() ? borders.getBottom() : borders.addNewBottom();
+        bottom.setVal(STBorder.NONE);
+
+        CTBorder left = borders.isSetLeft() ? borders.getLeft() : borders.addNewLeft();
+        left.setVal(STBorder.NONE);
+
+        CTBorder right = borders.isSetRight() ? borders.getRight() : borders.addNewRight();
+        right.setVal(STBorder.NONE);
     }
 
     private static List<List<Character>> splitIntoRows(List<Character> characters, int columnsPerRow) {
@@ -184,20 +215,73 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         vAlign.setVal(STVerticalJc.CENTER);
     }
 
+    private static void clearTableBorders(CTTblPr tblPr) {
+        CTTblBorders tblBorders = tblPr.isSetTblBorders() ? tblPr.getTblBorders() : tblPr.addNewTblBorders();
+
+        CTBorder top = tblBorders.isSetTop() ? tblBorders.getTop() : tblBorders.addNewTop();
+        top.setVal(STBorder.NONE);
+
+        CTBorder bottom = tblBorders.isSetBottom() ? tblBorders.getBottom() : tblBorders.addNewBottom();
+        bottom.setVal(STBorder.NONE);
+
+        CTBorder left = tblBorders.isSetLeft() ? tblBorders.getLeft() : tblBorders.addNewLeft();
+        left.setVal(STBorder.NONE);
+
+        CTBorder right = tblBorders.isSetRight() ? tblBorders.getRight() : tblBorders.addNewRight();
+        right.setVal(STBorder.NONE);
+
+        CTBorder insideH = tblBorders.isSetInsideH() ? tblBorders.getInsideH() : tblBorders.addNewInsideH();
+        insideH.setVal(STBorder.NONE);
+
+        CTBorder insideV = tblBorders.isSetInsideV() ? tblBorders.getInsideV() : tblBorders.addNewInsideV();
+        insideV.setVal(STBorder.NONE);
+    }
+
+    private static void setCellBorders(XWPFTableCell cell) {
+        CTTc cttc = cell.getCTTc();
+        CTTcPr tcPr = cttc.isSetTcPr() ? cttc.getTcPr() : cttc.addNewTcPr();
+        CTTcBorders borders = tcPr.isSetTcBorders() ? tcPr.getTcBorders() : tcPr.addNewTcBorders();
+
+        // Top border
+        CTBorder top = borders.isSetTop() ? borders.getTop() : borders.addNewTop();
+        top.setVal(STBorder.SINGLE);
+        top.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 8L));
+        top.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        top.setColor(BORDER_COLOR);
+
+        // Bottom border
+        CTBorder bottom = borders.isSetBottom() ? borders.getBottom() : borders.addNewBottom();
+        bottom.setVal(STBorder.SINGLE);
+        bottom.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 8L));
+        bottom.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        bottom.setColor(BORDER_COLOR);
+
+        // Left border
+        CTBorder left = borders.isSetLeft() ? borders.getLeft() : borders.addNewLeft();
+        left.setVal(STBorder.SINGLE);
+        left.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 8L));
+        left.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        left.setColor(BORDER_COLOR);
+
+        // Right border
+        CTBorder right = borders.isSetRight() ? borders.getRight() : borders.addNewRight();
+        right.setVal(STBorder.SINGLE);
+        right.setSz(BigInteger.valueOf(BORDER_THICKNESS_POINTS * 8L));
+        right.setSpace(BigInteger.valueOf(BORDER_SPACING));
+        right.setColor(BORDER_COLOR);
+    }
+
     private void addClues(XWPFDocument doc, Puzzle puzzle) {
         // Write the label in a different font and size
         XWPFParagraph labelParagraph = doc.createParagraph();
+        labelParagraph.setSpacingAfter(PARAGRAPH_SPACING);
+
         XWPFRun labelRun = labelParagraph.createRun();
-        labelRun.setText(""+PuzzleProperties.getProperty("label.clues") + ":");
+        labelRun.setText(""+PuzzleProperties.getProperty("label.clues"));
         labelRun.setFontFamily(FONT_FAMILY);
         labelRun.setFontSize(PAGE_TITLE_FONT_SIZE);
         labelRun.setBold(true);
 
-        // Now write the clues in a different font, one per line
-        XWPFParagraph cluesParagraph = doc.createParagraph();
-        XWPFRun cluesRun = cluesParagraph.createRun();
-        cluesRun.setFontFamily(FONT_FAMILY);
-        cluesRun.setFontSize(NORMAL_TEXT_FONT_SIZE);
         List<Word> words = puzzle.getWords();
 
         // Create a simple manual numbered list so numbering restarts at 1 for each puzzle
@@ -205,7 +289,7 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
         for (Word word : words) {
             XWPFParagraph para = doc.createParagraph();
             para.setAlignment(ParagraphAlignment.LEFT);
-
+            
             // Set a hanging indent
             para.setIndentationLeft(600);
             para.setIndentationHanging(600);
@@ -215,7 +299,6 @@ public class AcrosticPuzzleBookDocumentWriter extends BookDocumentWriter {
             run.setFontSize(NORMAL_TEXT_FONT_SIZE);
             run.setText((wordNum++) + ". " + word.getDefinition());
         }
-        cluesRun.addBreak();
     }
 
     private void addPuzzleImage(XWPFDocument doc, String imagePath)

@@ -32,7 +32,7 @@ public class AcrosticPuzzleFileWriter {
         for (Word word : puzzle.getWords()) {
             sb.append(i++).append(". ").append(word.getDefinition()).append("\n");
         }
-        sb.append("\n\n");
+        sb.append("\n\n\\n");
         sb.append(PuzzleProperties.getProperty("label.characters"));
         sb.append("\n\n");
         sb.append(getSortedCharacters());
