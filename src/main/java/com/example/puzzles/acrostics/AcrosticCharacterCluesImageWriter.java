@@ -1,5 +1,6 @@
 package com.example.puzzles.acrostics;
 
+import com.example.puzzles.model.AcrosticPuzzle;
 import com.example.puzzles.model.Puzzle;
 
 import javax.imageio.ImageIO;
@@ -8,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.ArrayList;
+
 
 public class AcrosticCharacterCluesImageWriter {
 
@@ -17,17 +18,17 @@ public class AcrosticCharacterCluesImageWriter {
 
     private static final int GRID_WIDTH = 30;
     
-    private final Puzzle puzzle;
+    private final AcrosticPuzzle puzzle;
     private final int cellSize = 15;
     private final int padding = 2;
     private final int fontSize = 10;
 
     public AcrosticCharacterCluesImageWriter(Puzzle puzzle) {
-        this.puzzle = puzzle;
+        this.puzzle = (AcrosticPuzzle) puzzle;
     }
 
     public void generate(String outputDir, String fileName) {
-        List<Character> chars = getSortedCharacters();
+        List<Character> chars = puzzle.getSortedCharacters();
         int gridWidth = (int) GRID_WIDTH;
         int gridHeight = (int) Math.ceil((double) chars.size() / gridWidth);
         int width = gridWidth * cellSize + 2 * padding;
@@ -70,12 +71,4 @@ public class AcrosticCharacterCluesImageWriter {
         }
     }
 
-    private List<Character> getSortedCharacters() {
-        List<Character> chars = new ArrayList<>();
-        puzzle.getWords().stream()
-            .flatMap(word -> word.getWord().chars().mapToObj(c -> (char) c))
-            .sorted()
-            .forEach(chars::add);
-        return chars;
-    }
 }

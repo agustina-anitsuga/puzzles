@@ -1,6 +1,7 @@
 package com.example.puzzles.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -40,4 +41,12 @@ public class AcrosticPuzzle extends Puzzle {
         return sb.toString();
     }
 
+    public List<Character> getSortedCharacters() {
+        List<Character> chars = new ArrayList<>();
+        this.getWords().stream()
+            .flatMap(word -> word.getWord().chars().mapToObj(c -> (char) c))
+            .sorted()
+            .forEach(chars::add);
+        return chars;
+    }
 }
